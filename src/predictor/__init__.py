@@ -5,15 +5,4 @@
 # Github: @Dosann
 # -------------------------------
 
-class SequenceSolver:
-
-    def __init__(): # TODO
-        pass
-    
-    def fit(self, X, y=None): # TODO
-        pass
-    
-    
-
-
-
+__all__ = ['base', 'sequential']

@@ -1,0 +1,100 @@
+1	General Electric (GE)	54,195,543	$12.56	-0.11	-0.87
+2	Bank of America (BAC)	45,130,765	31.18	0.04	0.13
+3	Ford Motor (F)	43,036,259	9.49	0.02	0.21
+4	Canopy Growth (CGC)	37,464,478	52.00	-0.40	-0.76
+5	Twitter (TWTR)	35,290,966	32.73	-2.11	-6.06
+6	Alibaba Group Holding ADR (BABA)	33,986,323	164.23	-6.21	-3.64
+7	Ambev ADR (ABEV)	31,652,556	4.40	0.07	1.62
+8	AT&T (T)	25,425,373	32.02	0.16	0.50
+9	Snap (SNAP)	24,603,306	10.11	-0.48	-4.53
+10	Weatherford International (WFT)	22,245,000	2.26	-0.09	-3.83
+11	Wells Fargo (WFC)	21,093,373	58.95	0.15	0.26
+12	Chesapeake Energy (CHK)	20,816,945	4.31	0.00	0.00
+13	Halliburton (HAL)	19,988,179	37.13	-2.35	-5.95
+14	Petroleo Brasileiro ADR (PBR)	19,825,872	10.56	0.16	1.54
+15	Pfizer (PFE)	19,506,031	41.85	0.48	1.16
+16	Vale ADR (VALE)	19,500,735	12.62	0.07	0.56
+17	Transocean (RIG)	19,012,429	11.20	-0.10	-0.88
+18	Southwestern Energy (SWN)	18,566,540	5.28	-0.06	-1.12
+19	Square Cl A (SQ)	17,824,166	87.20	-4.05	-4.44
+20	GameStop Cl A (GME)	17,215,838	16.26	2.21	15.73
+21	Freeport-McMoRan (FCX)	16,295,248	13.67	0.19	1.41
+22	Itau Unibanco Holding ADR (ITUB)	16,029,728	10.08	0.12	1.20
+23	Oracle (ORCL)	15,718,115	48.04	-0.54	-1.11
+24	Yamana Gold (AUY)	15,010,352	2.51	-0.10	-3.83
+25	CVS Health (CVS)	14,482,513	74.89	0.89	1.20
+26	Verizon Communications (VZ)	14,007,362	53.82	0.63	1.18
+27	Annaly Capital Management (NLY)	13,412,711	10.54	0.10	0.97
+28	Kinder Morgan (KMI)	13,156,835	17.79	0.17	0.96
+29	Hewlett Packard Enterprise (HPE)	13,137,960	16.59	-0.08	-0.48
+30	Williams (WMB)	12,705,890	29.47	0.27	0.92
+31	Exxon Mobil (XOM)	12,697,104	81.36	1.07	1.33
+32	HP (HPQ)	12,596,211	24.68	-0.13	-0.52
+33	General Motors (GM)	12,375,141	35.29	-0.31	-0.87
+34	ENSCO (ESV)	11,944,607	6.68	-0.05	-0.74
+35	Citigroup (C)	11,896,629	71.17	-0.23	-0.32
+36	Denbury Resources (DNR)	11,801,240	5.37	-0.03	-0.56
+37	Nike Cl B (NKE)	11,657,375	79.92	0.32	0.40
+38	Nokia ADR (NOK)	11,549,255	5.40	-0.11	-2.00
+39	VISA Cl A (V)	11,139,594	142.67	-5.13	-3.47
+40	J.C. Penney (JCP)	11,019,775	1.74	-0.02	-1.14
+41	JPMorgan Chase (JPM)	10,813,354	114.59	-0.56	-0.49
+42	Barrick Gold (ABX)	10,332,578	9.85	0.01	0.10
+43	Regions Financial (RF)	10,256,740	19.93	0.29	1.48
+44	Coca-Cola (KO)	10,093,658	45.38	0.62	1.39
+45	Marathon Oil (MRO)	10,088,359	21.21	0.15	0.71
+46	Schlumberger (SLB)	9,901,791	61.02	-0.90	-1.45
+47	Delta Air Lines (DAL)	9,352,165	57.21	-1.67	-2.84
+48	Macy's (M)	9,343,143	35.80	-0.59	-1.62
+49	Walmart (WMT)	9,204,600	96.62	1.26	1.32
+50	AES (AES)	9,123,958	13.41	0.26	1.98
+51	Cleveland-Cliffs (CLF)	9,019,408	10.15	0.38	3.89
+52	Newell Brands (NWL)	8,887,353	21.87	0.50	2.34
+53	Southern (SO)	8,795,290	44.66	0.77	1.75
+54	Nabors Industries (NBR)	8,435,665	6.05	-0.11	-1.79
+55	Halcon Resources (HK)	8,390,005	4.61	0.03	0.66
+56	ADT (ADT)	8,281,950	8.77	-0.42	-4.57
+57	Gerdau ADR (GGB)	8,152,958	3.72	0.01	0.27
+58	Las Vegas Sands (LVS)	8,133,072	63.11	-1.39	-2.16
+59	Hanesbrands (HBI)	8,103,111	17.85	0.24	1.36
+60	CenturyLink (CTL)	8,029,438	21.65	0.15	0.70
+61	Pandora Media (P)	7,909,181	8.83	-0.27	-2.97
+62	Tahoe Resources (TAHO)	7,829,388	2.73	-0.04	-1.44
+63	WPX Energy (WPX)	7,820,902	18.04	-0.36	-1.96
+64	AK Steel Holding (AKS)	7,811,477	4.35	-0.02	-0.46
+65	TAL Education Group ADR (TAL)	7,531,729	27.64	-1.62	-5.54
+66	MGM Resorts International (MGM)	7,435,883	27.66	-0.30	-1.07
+67	Coty Cl A (COTY)	7,320,437	12.19	0.15	1.25
+68	Gold Fields ADR (GFI)	7,254,188	2.32	-0.07	-2.93
+69	Goldcorp (GG)	7,180,160	10.17	-0.08	-0.78
+70	Procter&Gamble (PG)	7,175,553	83.29	0.59	0.71
+71	Sprint (S)	7,167,884	6.08	-0.02	-0.33
+72	Taiwan Semiconductor Manufacturing ADR (TSM)	7,107,827	44.22	0.11	0.25
+73	DowDuPont (DWDP)	7,083,323	70.05	0.33	0.47
+74	Salesforce.com (CRM)	7,014,636	148.65	-4.56	-2.98
+75	Devon Energy (DVN)	6,990,297	41.71	-0.64	-1.51
+76	L Brands (LB)	6,904,148	26.48	0.35	1.34
+77	Exelon (EXC)	6,894,736	44.20	0.21	0.48
+78	Host Hotels&Resorts (HST)	6,770,908	21.24	0.02	0.09
+79	Kroger (KR)	6,709,793	31.96	0.06	0.19
+80	Teva Pharmaceutical Industries ADR (TEVA)	6,683,180	22.64	-0.06	-0.26
+81	Kimco Realty (KIM)	6,621,190	17.22	0.26	1.53
+82	Altria Group (MO)	6,483,194	60.65	1.54	2.61
+83	Johnson Controls International (JCI)	6,463,639	38.27	0.50	1.32
+84	Companhia Energetica de Minas Gerais-Cemig ADR (CIG)	6,411,432	1.69	0.03	1.81
+85	KeyCorp (KEY)	6,384,245	21.33	0.12	0.57
+86	Infosys ADR (INFY)	6,254,036	20.71	-0.05	-0.24
+87	Petroleo Brasileiro ADR A (PBRA)	6,228,531	9.00	0.06	0.67
+88	Archer Daniels Midland (ADM)	6,215,400	49.83	-0.25	-0.50
+89	Target (TGT)	6,111,033	88.60	-0.35	-0.39
+90	Merck&Co (MRK)	6,092,656	68.62	0.67	0.99
+91	Franklin Resources (BEN)	6,071,459	31.42	0.16	0.51
+92	PPL (PPL)	6,055,343	30.62	0.68	2.27
+93	Synchrony Financial (SYF)	5,947,770	32.01	0.13	0.41
+94	Bristol-Myers Squibb (BMY)	5,892,908	61.20	0.72	1.19
+95	Walt Disney (DIS)	5,886,502	109.87	-0.98	-0.88
+96	General Mills (GIS)	5,877,266	45.55	-0.37	-0.81
+97	Johnson&Johnson (JNJ)	5,858,356	135.86	2.14	1.60
+98	Noble Energy (NBL)	5,853,637	29.83	0.69	2.37
+99	Newmont Mining (NEM)	5,849,199	30.13	0.04	0.13
+100	Abbott Laboratories (ABT)	5,808,036	66.00	-1.11	-1.65
