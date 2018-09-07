@@ -58,7 +58,7 @@ def get_data(input_length):
 
 def train(model, train_X, train_Y):
     model.fit(train_X, train_Y, epochs = 10, batch_size = 64, end_time = '20180907 10:00:00', 
-                save_path = '../model/LSTM_1/lstm1.solver')
+                save_path = '../model/Sin/sin.solver')
 
 def test(model, test_X, test_length):
     print(test_X)
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         model = sequential.SequentialModel(solver = solver)
         train(model, train_X, train_Y)
     else:
-        solver = LstmSolver_1.load_model('../model/LSTM_1/lstm1.solver.0210')
+        solver = LstmSolver_1.load_model('../model/Sin/sin.solver.0210')
         predictor = dap.DeterministicAutoregressivePredictor(solver)
         model = sequential.SequentialModel(solver = solver, predictor = predictor)
         prediction = test(model, test_X[0:1], params['test_length'])
