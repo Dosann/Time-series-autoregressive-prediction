@@ -13,10 +13,14 @@ def ParseLstmParams():
                         help = 'serie length of input serie')
     parser.add_argument('input_size', type = int,
                         help = 'dimension of input vector')
+    parser.add_argument('--test', type = bool, default = False,
+                        help = 'train phase')
+    parser.add_argument('test_length', type = int, default = 100,
+                        help = '# of timesteps to forecast when test')
     return vars(parser.parse_args())
 
 if __name__ == '__main__':
     parser = ParseLstmParams()
-    parser = vars(parser)
     print(parser['input_length'])
     print(parser['input_size'])
+    print(parser)

@@ -9,10 +9,13 @@ import sys
 sys.path.append('../src/')
 from solver.LstmSolver import LstmSolver
 from model import sequential
+from predictor import DeterministicAutoregressivePredictor as dap
 from utils.ParamParser import ParseLstmParams
+import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from utils import data_util
+import matplotlib.pyplot as plt
 
 import keras
 import keras.backend as K
@@ -43,16 +46,36 @@ class LstmSolver_1(LstmSolver):
         model.compile(loss = 'mse', optimizer = 'adam')
         self._solver = model
 
-def get_data(input_length):
+def get_data_price(input_length):
     prices = pd.read_csv('../data/prices.5min.top100volume/top80volumestocks.csv', index_col = 'datetime')
     scaler = MinMaxScaler()
     prices = scaler.fit_transform(prices)
     return data_util.SerieToPieces(prices, piece_length = input_length)
 
+def get_data(input_length):
+    sine = np.load('../data/Sin_1_10000.npy')
+    return data_util.SerieToPieces(sine, piece_length = input_length)
+
+def train(model, train_X, train_Y):
+    model.fit(train_X, train_Y, epochs = 10, batch_size = 64, end_time = '20180907 10:00:00', 
+                save_path = '../model/LSTM_1/lstm1.solver')
+
+def test(model, test_X, test_length):
+    print(test_X)
+    return model.predictor.multistep_predict(test_X, test_length)
+
 if __name__ == '__main__':
     params = ParseLstmParams()
-    solver = LstmSolver_1(params)
-    print(solver)
-    model = sequential.SequentialModel(solver = solver)
     [train_X, train_Y, valid_X, valid_Y, test_X, test_Y] = get_data(params['input_length'])
-    model.fit(train_X, train_Y, epochs = 10, batch_size = 64, end_time = '20180907 10:00:00', save_path = '../model/LSTM_1/lstm1.solver')
+    if not params['test']:
+        solver = LstmSolver_1(params)
+        model = sequential.SequentialModel(solver = solver)
+        train(model, train_X, train_Y)
+    else:
+        solver = LstmSolver_1.load_model('../model/LSTM_1/lstm1.solver.0210')
+        predictor = dap.DeterministicAutoregressivePredictor(solver)
+        model = sequential.SequentialModel(solver = solver, predictor = predictor)
+        prediction = test(model, test_X[0:1], params['test_length'])
+        print(prediction)
+        plt.plot(np.concatenate([test_X[0:1], prediction], axis = 1)[0,:,:10])
+        plt.show()

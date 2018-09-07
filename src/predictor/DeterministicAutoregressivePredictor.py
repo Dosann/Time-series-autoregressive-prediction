@@ -30,7 +30,7 @@ class DeterministicAutoregressivePredictor(Predictor):
         X_hist[:,:input_length,:] = X
         for i in range(n_steps):
             print('progress: %d / %d'%(i+1, n_steps))
-            X_hist[:,i+input_length,0] = self.do_predict(X_hist[:,i:i+input_length,:])
-        return X_hist[:,input_length:,0]
+            X_hist[:,i+input_length,:] = self.do_predict(X_hist[:,i:i+input_length,:])
+        return X_hist[:,input_length:,:]
 
 
