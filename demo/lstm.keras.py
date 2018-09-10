@@ -51,6 +51,9 @@ def ParseLstmParams():
     parser.add_argument('--end_time', type = str, default = None,
                         help = '(train phase, optional) time to end training.\n'
                                '\tformat like: "20180910 00:00:00')
+    parser.add_argument('--stages', type = int, default = 1,
+                        help = '(train phase) # of stages when training. '
+                               'A stage includes one of several epochs')
     parser.add_argument('--epochs', type = int,
                         help = '(train phase) # of epochs when training')
     parser.add_argument('--batch_size', type = int,

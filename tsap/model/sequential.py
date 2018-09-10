@@ -53,7 +53,7 @@ class SequentialModel(Model):
                 return False
             else:
                 return True
-        if self.current_epoch < self.epochs:
+        if self.stages > 0:
             return False
         else:
             return True
@@ -70,7 +70,7 @@ class SequentialModel(Model):
             else:
                 self.train_hist[key] = value
 
-    def fit(self, X, Y, epochs=10, batch_size=64, end_time=None, save_path = None):
+    def fit(self, X, Y, stages = 1, epochs=10, batch_size=64, end_time=None, save_path = None):
         if end_time is not None:
             self.end_by_timestamp = True
             try:
@@ -81,6 +81,7 @@ class SequentialModel(Model):
         else:
             self.end_by_timestamp = False
             self.end_time = None
+        self.stages = stages
         self.epochs = epochs
         self.batch_size = batch_size
         # Check
@@ -95,11 +96,13 @@ class SequentialModel(Model):
             hist = self.solver.fit(X, Y, epochs = self.epochs, batch_size = self.batch_size)
             self._append_history(hist)
             self.current_epoch += self.epochs
+            self.stages += -1
             if save_path is not None:
                 self.solver.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
         self._print_epoch()
     
-    def fit_generator(self, X, Y, batches_per_epoch, epochs=10, end_time = None):
+    def fit_generator(self, X, Y, batches_per_epoch, epochs=10, end_time = None): 
+        # UNFINISHED
         if end_time is None:
             self.end_by_timestamp = True
             try:
