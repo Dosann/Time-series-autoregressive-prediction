@@ -28,6 +28,7 @@ def RemoveQuotes(string):
         string = string[1:]
     if string[-1] in ['"', "'"]:
         string = string[:-1]
+    return string
 
 def ParseLstmParams():
     parser = argparse.ArgumentParser()
