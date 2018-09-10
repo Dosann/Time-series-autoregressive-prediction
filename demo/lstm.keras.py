@@ -49,10 +49,13 @@ def ParseLstmParams():
     parser.add_argument('--model_path', type = str,
                         help = 'path of model\n'
                                '\tformat like: "../model/lstm1.solver')
-    parser.add_argument('--Solver', type = str,
-                        help = 'Solver object name')
     parser.add_argument('--data_scale', action = 'store_true', default = False)
     parser.add_argument('--CUDA_VISIBLE_DEVICES', type = str, default = None)
+    # nn construction
+    parser.add_argument('--Solver', type = str,
+                        help = 'Solver object name')
+    parser.add_argument('--hidden_units', type = int,
+                        help = '# of hidden units in LSTM')
     # train
     parser.add_argument('--end_time', type = str, default = None,
                         help = '(train phase, optional) time to end training.\n'
@@ -79,6 +82,8 @@ def ParseLstmParams():
         print("parameter '--model_path' is not specified.")
     if 'Solver' not in params:
         print("parameter '--Solver' is not specified.")
+    if 'hidden_units' not in params:
+        print("parameter '--hidden_units' is not specified.")
     if params['test']:
         if 'test_length' not in params:
             print("parameter '--test_length' is not specified.")
@@ -108,9 +113,9 @@ class SolverStructure1(LstmSolverKeras):
         self.input_size   = params['input_size']
         inputs = Input(shape = (self.input_length, 
                                 self.input_size))
-        lstm1 = LSTM(100, return_sequences = True)(inputs)
-        lstm2 = LSTM(100, return_sequences = True)(lstm1)
-        lstm3 = LSTM(100, return_sequences = True)(lstm2)
+        lstm1 = LSTM(params['hidden_units'], return_sequences = True)(inputs)
+        lstm2 = LSTM(params['hidden_units'], return_sequences = True)(lstm1)
+        lstm3 = LSTM(params['hidden_units'], return_sequences = True)(lstm2)
         #reshape1 = Reshape((-1,))(lstm5)
         flatten1 = Flatten()(lstm3)
         predicts = Dense(self.input_size, activation = 'linear', 
@@ -130,9 +135,33 @@ class SolverStructure2(LstmSolverKeras):
         self.input_size   = params['input_size']
         inputs = Input(shape = (self.input_length, 
                                 self.input_size))
-        lstm1 = LSTM(100, return_sequences = True)(inputs)
+        lstm1 = LSTM(params['hidden_units'], return_sequences = True)(inputs)
         #reshape1 = Reshape((-1,))(lstm5)
         flatten1 = Flatten()(lstm1)
+        predicts = Dense(self.input_size, activation = 'linear', 
+                        kernel_regularizer = regularizers.l2(0.2))(flatten1)
+        model = Model(inputs = inputs, outputs = predicts)
+        model.compile(loss = 'mse', optimizer = 'adam')
+        self._solver = model
+
+class SolverStructure3(LstmSolverKeras):
+    
+    def __init__(self, params):
+        super(SolverStructure3, self).__init__(params)
+        self._solver_construction(params)
+
+    def _solver_construction(self, params):
+        self.input_length = params['input_length']
+        self.input_size   = params['input_size']
+        inputs = Input(shape = (self.input_length, 
+                                self.input_size))
+        lstm1 = LSTM(params['hidden_units'], return_sequences = True)(inputs)
+        lstm2 = LSTM(params['hidden_units'], return_sequences = True)(lstm1)
+        lstm3 = LSTM(params['hidden_units'], return_sequences = True)(lstm2)
+        lstm4 = LSTM(params['hidden_units'], return_sequences = True)(lstm3)
+        lstm5 = LSTM(params['hidden_units'], return_sequences = True)(lstm4)
+        #reshape1 = Reshape((-1,))(lstm5)
+        flatten1 = Flatten()(lstm5)
         predicts = Dense(self.input_size, activation = 'linear', 
                         kernel_regularizer = regularizers.l2(0.2))(flatten1)
         model = Model(inputs = inputs, outputs = predicts)
