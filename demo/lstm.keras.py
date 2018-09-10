@@ -143,7 +143,8 @@ def train(model, train_X, train_Y, params):
     save_dir, file_name = os.path.split(params['model_path'])
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-    return model.fit(train_X, train_Y, epochs = params['epochs'], 
+    return model.fit(train_X, train_Y, stages = params['stages'],
+                    epochs = params['epochs'], 
                     batch_size = params['batch_size'], 
                     end_time = params['end_time'], 
                     save_path = params['model_path'])
