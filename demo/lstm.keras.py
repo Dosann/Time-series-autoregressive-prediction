@@ -23,7 +23,9 @@ from keras.layers import Input, LSTM, Dense, Activation, TimeDistributed, Averag
 from keras import regularizers
 from keras.utils import plot_model
 
-def RemoveQuotes(string):
+def RemoveQuotes(string): 
+    # Quotes will be appended on head/tail of input string arguments.
+    # This function removes them
     if string[0] in ['"', "'"]:
         string = string[1:]
     if string[-1] in ['"', "'"]:
@@ -44,6 +46,7 @@ def ParseLstmParams():
     parser.add_argument('--Solver', type = str,
                         help = 'Solver object name')
     parser.add_argument('--data_scale', action = 'store_true', default = False)
+    parser.add_argument('--CUDA_VISIBLE_DEVICES', type = str, default = None)
     # train
     parser.add_argument('--end_time', type = str, default = None,
                         help = '(train phase, optional) time to end training.\n'
@@ -75,6 +78,8 @@ def ParseLstmParams():
             print("parameter '--epochs' is not specified.")
         if 'batch_size' not in params:
             print("parameter '--batch_size' is not specified.")
+    if params['CUDA_VISIBLE_DEVICES'] is not None:
+        os.environ['CUDA_VISIBLE_DEVICES'] = RemoveQuotes(params['CUDA_VISIBLE_DEVICES'])
     
     params['data_path'] = RemoveQuotes(params['data_path'])
     params['model_path'] = RemoveQuotes(params['model_path'])
