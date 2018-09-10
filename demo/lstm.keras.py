@@ -69,8 +69,8 @@ def ParseLstmParams():
         if 'batch_size' not in params:
             print("parameter '--batch_size' is not specified.")
     
-    params['data_path'] = params['data_path'][1:-1]
-    params['model_path'] = params['model_path'][1:-1]
+    params['data_path'] = params['data_path']
+    params['model_path'] = params['model_path']
     print("""data path : {}""".format(params['data_path']))
     print("""model path : {}""".format(params['model_path']))
     return params
