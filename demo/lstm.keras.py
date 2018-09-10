@@ -13,8 +13,14 @@ from tsap.model import sequential
 from tsap.predictor import DeterministicAutoregressivePredictor as dap
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import argparse
+import matplotlib
+
+import platform
+system = platform.system()
+if system != "Windows":
+    matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 import keras
 import keras.backend as K
