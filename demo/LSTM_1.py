@@ -6,15 +6,13 @@
 # -------------------------------
 
 import sys
-sys.path.append('../src/')
-from solver.LstmSolver import LstmSolver
-from model import sequential
-from predictor import DeterministicAutoregressivePredictor as dap
-from utils.ParamParser import ParseLstmParams
+from tsap.solver.LstmSolver import LstmSolverKeras
+from tsap.model import sequential
+from tsap.predictor import DeterministicAutoregressivePredictor as dap
+from tsap.utils import data_util
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from utils import data_util
 import matplotlib.pyplot as plt
 
 import keras
@@ -24,7 +22,7 @@ from keras.layers import Input, LSTM, Dense, Activation, TimeDistributed, Averag
 from keras import regularizers
 from keras.utils import plot_model
 
-class LstmSolver_1(LstmSolver):
+class LstmSolver_1(LstmSolverKeras):
 
     def __init__(self, params):
         super(LstmSolver_1, self).__init__(params)
@@ -57,7 +55,7 @@ def get_data(input_length):
     return data_util.SerieToPieces(sine, piece_length = input_length)
 
 def train(model, train_X, train_Y):
-    model.fit(train_X, train_Y, epochs = 10, batch_size = 64, end_time = '20180907 10:00:00', 
+    return model.fit(train_X, train_Y, epochs = 10, batch_size = 64, end_time = '20180907 14:00:00', 
                 save_path = '../model/Sin/sin.solver')
 
 def test(model, test_X, test_length):
@@ -72,7 +70,7 @@ if __name__ == '__main__':
         model = sequential.SequentialModel(solver = solver)
         train(model, train_X, train_Y)
     else:
-        solver = LstmSolver_1.load_model('../model/Sin/sin.solver.0210')
+        solver = LstmSolver_1.load_model('../model/Sin/sin.solver.0010')
         predictor = dap.DeterministicAutoregressivePredictor(solver)
         model = sequential.SequentialModel(solver = solver, predictor = predictor)
         prediction = test(model, test_X[0:1], params['test_length'])

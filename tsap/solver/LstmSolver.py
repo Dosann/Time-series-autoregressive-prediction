@@ -6,19 +6,23 @@
 # -------------------------------
 
 from .base import Solver
+from ..utils import data_util
 from types import GeneratorType
 import numpy as np
+import pandas as pd
 import pickle
 from keras import models
+from sklearn.preprocessing import MinMaxScaler
 
 
 
-class LstmSolver(Solver):
+class LstmSolverKeras(Solver):
 
     def __init__(self, params=None):
-        super(LstmSolver, self).__init__()
+        super(LstmSolverKeras, self).__init__()
         self._init_params(params)
         self._solver = None
+        self._scaler = None
 
     def _init_params(self, params):
         if params is None:
@@ -74,7 +78,7 @@ class LstmSolver(Solver):
 
     def fit(self, X, Y, epochs, batch_size):
         self._check_input(X, Y)
-        self._solver.fit(X, Y, epochs = epochs, 
+        return self._solver.fit(X, Y, epochs = epochs, 
                          batch_size = batch_size, 
                          validation_split = 0.01)
 
@@ -98,8 +102,27 @@ class LstmSolver(Solver):
         self._solver = _solver
     
     @staticmethod
-    def load_model(path):
+    def load_model(path, load_keras_model=True):
         with open(path, 'rb') as f:
             solver = pickle.loads(f.read())
-        solver._solver = models.load_model(path + '.keras')
+        if load_keras_model:
+            solver._solver = models.load_model(path + '.keras')
         return solver
+
+    def get_data(self, data_path, input_length, data_scale):
+        suffix = data_path[data_path.rfind('.')+1:]
+        if suffix == 'csv':
+            data = pd.read_csv(data_path, index_col = 'datetime')
+        elif suffix == 'npy':
+            data = np.load(data_path)
+        else:
+            raise ValueError("Undefined data format : '{}'".format(suffix))
+        print(data.squeeze())
+        if data_scale:
+            if self._scaler is None:
+                self._scaler = MinMaxScaler(feature_range = (-1, 1))
+                self._scaler.fit(data)
+            else:
+                print("Use saved scaler")
+            data = self._scaler.transform(data)
+        return data_util.SerieToPieces(data, piece_length = input_length)

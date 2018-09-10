@@ -19,6 +19,7 @@ class DeterministicAutoregressivePredictor(Predictor):
         return predict
 
     def multistep_predict(self, X, n_steps):
+        print("X.shape: {}".format(X.shape))
         n_samples, input_length, input_size = X.shape
         if input_length != self._solver.input_length:
             print("input length of X ({}) equals not the model input length "
