@@ -23,6 +23,12 @@ from keras.layers import Input, LSTM, Dense, Activation, TimeDistributed, Averag
 from keras import regularizers
 from keras.utils import plot_model
 
+def RemoveQuotes(string):
+    if string[0] in ['"', "'"]:
+        string = string[1:]
+    if string[-1] in ['"', "'"]:
+        string = string[:-1]
+
 def ParseLstmParams():
     parser = argparse.ArgumentParser()
     parser.add_argument('input_length', type = int,
@@ -69,8 +75,8 @@ def ParseLstmParams():
         if 'batch_size' not in params:
             print("parameter '--batch_size' is not specified.")
     
-    params['data_path'] = params['data_path']
-    params['model_path'] = params['model_path']
+    params['data_path'] = RemoveQuotes(params['data_path'])
+    params['model_path'] = RemoveQuotes(params['model_path'])
     print("""data path : {}""".format(params['data_path']))
     print("""model path : {}""".format(params['model_path']))
     return params
@@ -102,6 +108,7 @@ class SolverStructure2(LstmSolverKeras):
 
     def __init__(self, params):
         super(SolverStructure2, self).__init__(params)
+        self._solver_construction(params)
 
     def _solver_construction(self, params):
         self.input_length = params['input_length']

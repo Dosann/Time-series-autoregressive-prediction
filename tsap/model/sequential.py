@@ -43,7 +43,6 @@ class SequentialModel(Model):
     
     def _check_input(self, X, Y):
         self.solver._check_input(X, Y)
-
     
     def _check_input_generator(self, X, Y):
         self.solver._check_input_generator(X, Y)
