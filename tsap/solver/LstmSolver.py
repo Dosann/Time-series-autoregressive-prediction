@@ -112,12 +112,13 @@ class LstmSolverKeras(Solver):
     def get_data(self, data_path, input_length, data_scale):
         suffix = data_path[data_path.rfind('.')+1:]
         if suffix == 'csv':
-            data = pd.read_csv(data_path, index_col = 'datetime')
+            data = pd.read_csv(data_path, index_col = 'datetime').values
         elif suffix == 'npy':
             data = np.load(data_path)
         else:
             raise ValueError("Undefined data format : '{}'".format(suffix))
-        print(data.squeeze())
+        if data.squeeze().ndim == 1: # if data is saved as an 1-d array, reshape it to 2-D
+            data = data.reshape([-1,1])
         if data_scale:
             if self._scaler is None:
                 self._scaler = MinMaxScaler(feature_range = (-1, 1))
