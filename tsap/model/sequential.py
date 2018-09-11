@@ -98,7 +98,7 @@ class SequentialModel(Model):
             self.current_epoch += self.epochs
             self.stages += -1
             if save_path is not None:
-                self.solver.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
+                self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
         self._print_epoch()
     
     def fit_generator(self, X, Y, batches_per_epoch, epochs=10, end_time = None): 
@@ -129,19 +129,63 @@ class SequentialModel(Model):
             self.current_epoch += self.epochs
         self._print_epoch()
     
+    def _pickle_self(self):
+        _solver = self.solver
+        _predictor = self.predictor
+        self.solver = None
+        self.predictor = None
+        model_p = pickle.dumps(self)
+        self.solver = _solver
+        self.predictor = _predictor
+        return model_p
+    
     def save(self, path):
+        model_p = None
+        solver_p = None
+        predictor_p = None
+        # pickle solver
+        if self.solver is not None:
+            self.solver._save_others(path)
+            solver_p = self.solver._pickle_self()
+        # pickle predictor
+        if self.predictor is not None:
+            self.predictor._save_others(path)
+            predictor_p = self.predictor._pickle_self()
+        # pickle self
+        model_p = self._pickle_self()
+        model = {'model':model_p,
+                 'solver':solver_p,
+                 'predictor':predictor_p}
         with open(path, 'wb') as f:
-            f.write(pickle.dumps(self))
+            f.write(pickle.dumps(model))
+        print("# Model saved to {}".format(path))
     
     @staticmethod
     def load_model(path):
         with open(path, 'rb') as f:
             model = pickle.loads(f.read())
+        solver = model['solver']
+        predictor = model['predictor']
+        model = model['model']
+        model = pickle.loads(model)
+        if solver is not None:
+            solver = pickle.loads(solver)
+            solver._load_others(path)
+        if predictor is not None:
+            predictor = pickle.loads(predictor)
+            predictor._load_others(path)
+        model._set_solver(solver)
+        model._set_predictor(predictor)
         return model
     
     def load_weights(self, path): # TODO
         pass
 
     def predict(self, X):
-        return self.predictor.predict(X, solver = self.solver)
+        return self.predictor.do_predict(self.solver, X)
+    
+    def multistep_predict(self, X, n_steps):
+        return self.predictor.multistep_predict(self.solver, X, n_steps)
+    
+
 

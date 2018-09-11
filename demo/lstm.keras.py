@@ -11,6 +11,8 @@ import tsap
 from tsap.solver.LstmSolver import LstmSolverKeras
 from tsap.model import sequential
 from tsap.predictor import DeterministicAutoregressivePredictor as dap
+from tsap.solver.templates.LstmSolverStructures \
+    import SolverStructure1, SolverStructure2, SolverStructure3
 import numpy as np
 import pandas as pd
 import argparse
@@ -22,12 +24,6 @@ if system != "Windows":
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import keras
-import keras.backend as K
-from keras.models import Model
-from keras.layers import Input, LSTM, Dense, Activation, TimeDistributed, AveragePooling1D, Average, Reshape, Flatten
-from keras import regularizers
-from keras.utils import plot_model
 
 def RemoveQuotes(string): 
     # Quotes will be appended on head/tail of input string arguments.
@@ -102,71 +98,6 @@ def ParseLstmParams():
     return params
 
 
-class SolverStructure1(LstmSolverKeras):
-
-    def __init__(self, params):
-        super(SolverStructure1, self).__init__(params)
-        self._solver_construction(params)
-
-    def _solver_construction(self, params):
-        self.input_length = params['input_length']
-        self.input_size   = params['input_size']
-        inputs = Input(shape = (self.input_length, 
-                                self.input_size))
-        lstm1 = LSTM(params['hidden_units'], return_sequences = True)(inputs)
-        lstm2 = LSTM(params['hidden_units'], return_sequences = True)(lstm1)
-        lstm3 = LSTM(params['hidden_units'], return_sequences = True)(lstm2)
-        #reshape1 = Reshape((-1,))(lstm5)
-        flatten1 = Flatten()(lstm3)
-        predicts = Dense(self.input_size, activation = 'linear', 
-                        kernel_regularizer = regularizers.l2(0.2))(flatten1)
-        model = Model(inputs = inputs, outputs = predicts)
-        model.compile(loss = 'mse', optimizer = 'adam')
-        self._solver = model
-
-class SolverStructure2(LstmSolverKeras):
-
-    def __init__(self, params):
-        super(SolverStructure2, self).__init__(params)
-        self._solver_construction(params)
-
-    def _solver_construction(self, params):
-        self.input_length = params['input_length']
-        self.input_size   = params['input_size']
-        inputs = Input(shape = (self.input_length, 
-                                self.input_size))
-        lstm1 = LSTM(params['hidden_units'], return_sequences = True)(inputs)
-        #reshape1 = Reshape((-1,))(lstm5)
-        flatten1 = Flatten()(lstm1)
-        predicts = Dense(self.input_size, activation = 'linear', 
-                        kernel_regularizer = regularizers.l2(0.2))(flatten1)
-        model = Model(inputs = inputs, outputs = predicts)
-        model.compile(loss = 'mse', optimizer = 'adam')
-        self._solver = model
-
-class SolverStructure3(LstmSolverKeras):
-    
-    def __init__(self, params):
-        super(SolverStructure3, self).__init__(params)
-        self._solver_construction(params)
-
-    def _solver_construction(self, params):
-        self.input_length = params['input_length']
-        self.input_size   = params['input_size']
-        inputs = Input(shape = (self.input_length, 
-                                self.input_size))
-        lstm1 = LSTM(params['hidden_units'], return_sequences = True)(inputs)
-        lstm2 = LSTM(params['hidden_units'], return_sequences = True)(lstm1)
-        lstm3 = LSTM(params['hidden_units'], return_sequences = True)(lstm2)
-        lstm4 = LSTM(params['hidden_units'], return_sequences = True)(lstm3)
-        lstm5 = LSTM(params['hidden_units'], return_sequences = True)(lstm4)
-        #reshape1 = Reshape((-1,))(lstm5)
-        flatten1 = Flatten()(lstm5)
-        predicts = Dense(self.input_size, activation = 'linear', 
-                        kernel_regularizer = regularizers.l2(0.2))(flatten1)
-        model = Model(inputs = inputs, outputs = predicts)
-        model.compile(loss = 'mse', optimizer = 'adam')
-        self._solver = model
 
 def train(model, train_X, train_Y, params):
     save_dir, file_name = os.path.split(params['model_path'])
@@ -180,7 +111,7 @@ def train(model, train_X, train_Y, params):
 
 def test(model, test_X, test_length):
     print(test_X)
-    return model.predictor.multistep_predict(test_X, test_length)
+    return model.multistep_predict(test_X, test_length)
 
 def draw_prediction(test_X, test_Y, prediction, test_length, n_figs, save_path):
     test_length_r = min(test_X.shape[0], test_length)
@@ -211,11 +142,10 @@ if __name__ == '__main__':
         model = sequential.SequentialModel(solver = solver)
         train(model, train_X, train_Y, params)
     else:
-        solver = Solver.load_model(params['model_path'])
+        model = sequential.SequentialModel.load_model(params['model_path'])
         [train_X, train_Y, valid_X, valid_Y, test_X, test_Y] = \
-            solver.get_data(params['data_path'], params['input_length'], params['data_scale'])
-        predictor = dap.DeterministicAutoregressivePredictor(solver)
-        model = sequential.SequentialModel(solver = solver, predictor = predictor)
+            model.solver.get_data(params['data_path'], params['input_length'], params['data_scale'])
+        model._set_predictor(dap.DeterministicAutoregressivePredictor())
         prediction = test(model, test_X[0:1], params['test_length'])
         # draw prediction results
         draw_prediction(test_X, test_Y, prediction, params['test_length'], 

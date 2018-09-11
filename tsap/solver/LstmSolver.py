@@ -92,6 +92,19 @@ class LstmSolverKeras(Solver):
         assert(isinstance(X, np.ndarray))
         self._check_input_X(X)
         return self._solver.predict(X)
+    
+    def _save_others(self, path):
+        self._solver.save(path + '.keras')
+    
+    def _load_others(self, path):
+        self._solver = models.load_model(path + '.keras')
+
+    def _pickle_self(self):
+        _solver = self._solver
+        self._solver = None
+        solver_p = pickle.dumps(self)
+        self._solver = _solver
+        return solver_p
 
     def save(self, path):
         self._solver.save(path + '.keras')

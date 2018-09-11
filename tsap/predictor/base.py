@@ -7,11 +7,11 @@
 
 class Predictor:
 
-    def __init__(self, solver):
-        self._set_solver(solver)
+    def __init__(self):
+        pass
     
-    def _set_solver(self, solver):
-        self._solver = solver
+    def do_predict(self, solver, X):
+        pass
     
-    def multistep_predict(self, X, n_steps):
+    def multistep_predict(self, solver, X, n_steps):
         pass
