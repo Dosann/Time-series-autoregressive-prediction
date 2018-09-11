@@ -48,6 +48,8 @@ class LstmSolverKeras(Solver):
             raise ValueError("Input serie length mismatches between X "
                              "and solver.")
         if self.input_size != X.shape[2]:
+            print('# input_size:', self.input_size)
+            print('# X.shape[2]:', X.shape[2])
             raise ValueError("input Serie size mismatches between X "
                              "and solver.")
     
@@ -65,11 +67,8 @@ class LstmSolverKeras(Solver):
             raise ValueError("#X is not equal to #Y: #X({}), #Y({})."
                             .format(X.shape[0], Y.shape[0]))
     
-    def _check_input_generator(self, X, Y):
-        assert(isinstance(X, GeneratorType))
-        assert(isinstance(Y, GeneratorType))
-        X_sample = next(X)
-        Y_sample = next(Y)
+    def _check_input_generator(self, data_generator):
+        X_sample, Y_sample = next(data_generator)
         self._check_input_X(X_sample)
         self._check_input_Y(Y_sample)
         if X_sample.shape[0] != Y_sample.shape[0]:
@@ -82,11 +81,17 @@ class LstmSolverKeras(Solver):
                          batch_size = batch_size, 
                          validation_split = 0.01)
 
-    def fit_generator(self, X, Y, batches_per_epoch, epochs):
-        self._check_input_generator(X, Y)
-        self._solver.fit_generator(X, Y, epochs = epochs,
-                         steps_per_epoch = batches_per_epoch,
-                         validation_steps = 5)
+    def fit_generator(self, data_generator, epochs, batches_per_epoch, 
+                      valid_X=None, valid_Y=None):
+        self._check_input_generator(data_generator)
+        if valid_X is not None:
+            return self._solver.fit_generator(data_generator, epochs = epochs, 
+                                       steps_per_epoch = batches_per_epoch,
+                                       validation_data = [valid_X, valid_Y])
+        else:
+            return self._solver.fit_generator(data_generator, epochs = epochs,
+                                       steps_per_epoch = batches_per_epoch,
+                                       validation_steps = 5)
     
     def predict(self, X):
         assert(isinstance(X, np.ndarray))
@@ -121,22 +126,3 @@ class LstmSolverKeras(Solver):
         if load_keras_model:
             solver._solver = models.load_model(path + '.keras')
         return solver
-
-    def get_data(self, data_path, input_length, data_scale):
-        suffix = data_path[data_path.rfind('.')+1:]
-        if suffix == 'csv':
-            data = pd.read_csv(data_path, index_col = 'datetime').values
-        elif suffix == 'npy':
-            data = np.load(data_path)
-        else:
-            raise ValueError("Undefined data format : '{}'".format(suffix))
-        if data.squeeze().ndim == 1: # if data is saved as an 1-d array, reshape it to 2-D
-            data = data.reshape([-1,1])
-        if data_scale:
-            if self._scaler is None:
-                self._scaler = MinMaxScaler(feature_range = (-1, 1))
-                self._scaler.fit(data)
-            else:
-                print("Use saved scaler")
-            data = self._scaler.transform(data)
-        return data_util.SerieToPieces(data, piece_length = input_length)

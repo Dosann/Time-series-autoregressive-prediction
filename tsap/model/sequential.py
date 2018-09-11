@@ -44,8 +44,8 @@ class SequentialModel(Model):
     def _check_input(self, X, Y):
         self.solver._check_input(X, Y)
     
-    def _check_input_generator(self, X, Y):
-        self.solver._check_input_generator(X, Y)
+    def _check_input_generator(self, data_generator):
+        self.solver._check_input_generator(data_generator)
     
     def _is_end(self):
         if self.end_by_timestamp:
@@ -90,7 +90,7 @@ class SequentialModel(Model):
         self._check_parameters()
         # fit
         if save_path is not None:
-            self.solver.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
+            self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
         while not self._is_end():
             self._print_epoch()
             hist = self.solver.fit(X, Y, epochs = self.epochs, batch_size = self.batch_size)
@@ -101,9 +101,9 @@ class SequentialModel(Model):
                 self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
         self._print_epoch()
     
-    def fit_generator(self, X, Y, batches_per_epoch, epochs=10, end_time = None): 
-        # UNFINISHED
-        if end_time is None:
+    def fit_generator(self, data_generator, stages=1, epochs=10, batches_per_epoch=1000, 
+                      end_time=None, valid_X=None, valid_Y=None, save_path=None): 
+        if end_time is not None:
             self.end_by_timestamp = True
             try:
                 self.end_time = dt.datetime.strptime(end_time, '%Y%m%d %H:%M:%S')
@@ -113,20 +113,27 @@ class SequentialModel(Model):
         else:
             self.end_by_timestamp = False
             self.end_time = None
+        self.stages = stages
         self.epochs = epochs
         self.batches_per_epoch = batches_per_epoch
         # Check
-        self._check_input_generator(X, Y)
+        self._check_input_generator(data_generator)
         self._check_solver()
         self._check_parameters()
         # fit
+        if save_path is not None:
+            self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
         while not self._is_end():
-            if save_path is not None:
-                self.solver.save('../model/{}.{:0>4d}'.format(save_path, self.current_epoch))
             self._print_epoch()
-            self.solver.fit_generator(X, Y, epochs = self.epochs, 
+            hist = self.solver.fit_generator(data_generator, 
+                                      valid_X = valid_X, valid_Y = valid_Y,
+                                      epochs = self.epochs, 
                                       batches_per_epoch = self.batches_per_epoch)
+            self._append_history(hist)
             self.current_epoch += self.epochs
+            self.stages += -1
+            if save_path is not None:
+                self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
         self._print_epoch()
     
     def _pickle_self(self):
