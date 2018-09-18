@@ -201,3 +201,5 @@ if __name__ == '__main__':
                         params['n_figs'], params['model_path'])
         # save prediction results
         np.save(params['model_path'] + '.pred', prediction)
+
+        
