@@ -68,12 +68,13 @@ class LstmSolverKeras(Solver):
                             .format(X.shape[0], Y.shape[0]))
     
     def _check_input_generator(self, data_generator):
-        X_sample, Y_sample = next(data_generator)
-        self._check_input_X(X_sample)
-        self._check_input_Y(Y_sample)
-        if X_sample.shape[0] != Y_sample.shape[0]:
-            raise ValueError("#X is not equal to #Y: #X({}), #Y({})."
-                            .format(X_sample.shape[0], Y_sample.shape[0]))
+        # X_sample, Y_sample = next(data_generator)
+        # self._check_input_X(X_sample)
+        # self._check_input_Y(Y_sample)
+        # if X_sample.shape[0] != Y_sample.shape[0]:
+        #     raise ValueError("#X is not equal to #Y: #X({}), #Y({})."
+        #                     .format(X_sample.shape[0], Y_sample.shape[0]))
+        pass
 
     def fit(self, X, Y, epochs, batch_size):
         self._check_input(X, Y)
@@ -83,7 +84,7 @@ class LstmSolverKeras(Solver):
 
     def fit_generator(self, data_generator, epochs, batches_per_epoch, 
                       validation_data=None):
-        # self._check_input_generator(data_generator)
+        self._check_input_generator(data_generator)
         if validation_data is not None:
             return self._solver.fit_generator(data_generator, epochs = epochs, 
                                        steps_per_epoch = batches_per_epoch,
