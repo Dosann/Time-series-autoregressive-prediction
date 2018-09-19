@@ -254,6 +254,8 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
             Y[i] = self.Y[channel_ids, _to[i], :]
         # Y : list of (out_size, n_classes)
         X = np.array(X)
+        Y = np.array(Y).transpose(1,0,2)
+        Y = [y for y in Y]
         self.batch += 1
         return X, Y
     
