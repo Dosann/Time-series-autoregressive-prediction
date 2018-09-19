@@ -11,6 +11,7 @@ import tsap
 from tsap.solver.LstmSolver import LstmSolverKeras
 from tsap.model import sequential
 from tsap.predictor import DeterministicAutoregressivePredictor as dap
+from tsap.predictor import ProbabilisticPredictor as pp
 from tsap.solver.templates.LstmSolverStructures \
     import DiscreteLstm1Layer
 from tsap.utils import data_util
@@ -245,6 +246,10 @@ def load_data(data_path):
 
 if __name__ == '__main__':
     params = ParseDiscreteLstmParams()
+    if params['montecarlo']:
+        predictor = pp.MCMCPredictor()
+    else:
+        predictor = dap.DetermDiscreteAGPredictor(params, intervals)
     
     if not params['fit_generator']:
         raise ValueError("Only data generator supported here!\n"
@@ -264,7 +269,7 @@ if __name__ == '__main__':
 
     if not params['test']: # train phase
         solver = eval(params['Solver'])(params)
-        model = sequential.SequentialModel(solver = solver)
+        model = sequential.SequentialModel(solver=solver, predictor=predictor)
         if not params['fit_generator']:
             raise ValueError("Only data generator supported here!\n"
                              "Try add argument '--fit_generator'")
@@ -277,7 +282,7 @@ if __name__ == '__main__':
                     params['input_length'], params['input_size'],
                     params['n_classes'], intervals)
         model = sequential.SequentialModel.load_model(params['model_path'])
-        model._set_predictor(dap.DetermDiscreteAGPredictor(params, intervals))
+        model._set_predictor(predictor)
 
         # multistep test   
         X, Y = test_feeder.get_singlstep_test_data(params['test_length'])
