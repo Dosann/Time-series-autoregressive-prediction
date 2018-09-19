@@ -78,3 +78,32 @@ class SolverStructure3(LstmSolverKeras):
         model = Model(inputs = inputs, outputs = predicts)
         model.compile(loss = 'mse', optimizer = 'adam')
         self._solver = model
+
+class DiscreteLstm1Layer(LstmSolverKeras):
+
+    def __init__(self, params):
+        super(DiscreteLstm1Layer, self).__init__(params)
+        self._solver_construction(params)
+    
+    def _solver_construction(self, params):
+        self.input_length = params['input_length']
+        self.input_size = params['input_size']
+        self.n_classes = params['n_classes']
+        inputs = Input(shape=(self.input_length,
+                              self.input_size))
+        lstm1 = LSTM(params['hidden_units'], return_sequences=True)(inputs)
+        flatten1 = Flatten()(lstm1)
+        predicts = []
+        for i in range(self.input_size):
+            predicts.append(Dense(self.n_classes, activation='softmax',
+                                  kernel_regularizer=None, 
+                                  name='out_{}'.format(i))(flatten1))
+        model = Model(inputs=inputs, outputs=predicts)
+        losses = {'out_{}'.format(i):'categorical_crossentropy' 
+                  for i in range(self.input_size)}
+        model.compile(loss=losses,
+                      optimizer='adam', metrics=['accuracy'])
+        self._solver = model
+    
+    def _set_intervals(self, intervals):
+        self.intervals = intervals

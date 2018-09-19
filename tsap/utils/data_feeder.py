@@ -94,7 +94,7 @@ class SequentialRandomChannelDataFeeder:
         Y = np.concatenate(Y, axis = 0)
         self.batch += 1
         return X, Y
-    
+
 
 if __name__ == '__main__':
     data = pd.read_csv('../../data/prices.5min.top100volume/top80volumestocks.csv', 

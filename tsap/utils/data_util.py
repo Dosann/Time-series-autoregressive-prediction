@@ -76,6 +76,58 @@ def Seq2SuccessiveXYBatch(seq, batch_size, length):
     Y = np.concatenate(Y, axis = 0)
     return X, Y
 
+def equalprob_interval_dividing(data, n_intervals):
+    st_data = np.sort(data.reshape(-1))
+    n_samples = st_data.shape[0]
+    divide_ids = np.linspace(0,n_samples,n_intervals+1).astype(np.int32)
+    divide_ids[-1] += -1
+    intervals = st_data[divide_ids]
+    # modify interval bound for first/last interval
+    origin_bound = [intervals[0], intervals[-1]]
+    finterv_mean = st_data[divide_ids[0]:divide_ids[1]].mean()
+    linterv_mean = st_data[divide_ids[-2]:divide_ids[-1]+1].mean()
+    intervals[0] += -(intervals[1]-finterv_mean)
+    intervals[-1] += (linterv_mean-intervals[-2])
+    print("Original bound ({:3.3f} , {:3.3f}) is modified to ({:3.3f} , {:3.3f})"
+          .format(origin_bound[0], origin_bound[1], intervals[0], intervals[-1]))
+    return intervals
+
+def equalwidth_interval_dividing(data, n_intervals):
+    st_data = np.sort(data.reshape(-1))
+    n_samples = st_data.shape[0]
+    start = st_data[0]
+    end = st_data[-1]
+    intervals = np.linspace(start, end, n_intervals+1)
+    # modify interval bound for first/last interval
+    origin_bound = [intervals[0], intervals[-1]]
+    finterv_mean = st_data[np.logical_and(st_data>=intervals[0], st_data<intervals[1])] \
+                        .mean()
+    linterv_mean = st_data[np.logical_and(st_data>intervals[-2], st_data<=intervals[-1])] \
+                        .mean()
+    intervals[0] += -(intervals[1]-finterv_mean)
+    intervals[-1] += (linterv_mean-intervals[-2])
+    print("Original bound ({:3.3f} , {:3.3f}) is modified to ({:3.3f} , {:3.3f})"
+          .format(origin_bound[0], origin_bound[1], intervals[0], intervals[-1]))
+    return intervals
+
+def continue2discrete(data, intervals):
+    dsc_data = np.zeros_like(data)
+    for i,(start,end) in enumerate(zip(intervals[:-1], intervals[1:])):
+        dsc_data[np.logical_and(data>=start, data<end)] = i
+    return dsc_data.astype(np.int32)
+
+def discrete2continue(data, intervals):
+    n_intervals = len(intervals)
+    MAP = {i:(intervals[i]+intervals[i+1])/2 for i in range(n_intervals-1)}
+    ctn_data = np.vectorize(MAP.get)(data)
+    return ctn_data
+
+def label2onehot(data, n_labels):
+    shape = data.shape
+    ohe = preprocessing.OneHotEncoder(n_values=n_labels)
+    ohe.fit(np.arange(n_labels, dtype=np.int32).reshape(-1,1))
+    return ohe.transform(data.reshape(-1,1)).reshape(shape)
+
 
 class SequentialRandomChannelDataFeeder:
     # input : data of 1-dim (n_samples,) or
@@ -95,22 +147,23 @@ class SequentialRandomChannelDataFeeder:
         self._check_data()
         self._reset()
 
-    def extract_valid_test_data(self, valid_split, test_split,
-                               channels = None):
-        # default: select the first 'out_size' channels as valid/test dataset.
-        if channels is None:
-            channels = range(self.out_size)
-        # split
-        n_valid = int((self._to - self._from) * valid_split)
-        n_test  = int((self._to - self._from) * test_split)
-        _from_test   = self._to - n_test
-        _from_valid  = _from_test - n_valid
-        valid_X, valid_Y = Seq2SuccessiveXYBatch(self.data[_from_valid:, channels], 
-                                                 n_valid, self.out_length)
-        test_X, test_Y   = Seq2SuccessiveXYBatch(self.data[_from_test:, channels], 
-                                                 n_test, self.out_length)
-        self._to = _from_valid
-        return valid_X, valid_Y, test_X, test_Y
+    # DO NOT USE THIS FUNCTION !!!
+    # def extract_valid_test_data(self, valid_split, test_split,
+    #                            channels = None):
+    #     # default: select the first 'out_size' channels as valid/test dataset.
+    #     if channels is None:
+    #         channels = range(self.out_size)
+    #     # split
+    #     n_valid = int((self._to - self._from) * valid_split)
+    #     n_test  = int((self._to - self._from) * test_split)
+    #     _from_test   = self._to - n_test
+    #     _from_valid  = _from_test - n_valid
+    #     valid_X, valid_Y = Seq2SuccessiveXYBatch(self.data[_from_valid:, channels], 
+    #                                              n_valid, self.out_length)
+    #     test_X, test_Y   = Seq2SuccessiveXYBatch(self.data[_from_test:, channels], 
+    #                                              n_test, self.out_length)
+    #     self._to = _from_valid
+    #     return valid_X, valid_Y, test_X, test_Y
 
     def _check_data(self):
         if not isinstance(self.data, np.ndarray):
@@ -129,6 +182,10 @@ class SequentialRandomChannelDataFeeder:
         self._from = 0
         self._to   = self.n_timestep - self.out_length - 1
         
+    def _data_preparation(self):
+        self.X = self.data
+        self.Y = self.data
+
     def _reset(self):
         self.batch = 0
     
@@ -142,20 +199,99 @@ class SequentialRandomChannelDataFeeder:
         _to   = _from + self.out_length
         for i in range(self.batch_size):
             channel_ids = np.random.permutation(self.n_chan)[:self.out_size]
-            X[i] = self.data[np.newaxis, _from[i]:_to[i], channel_ids]
-            Y[i] = self.data[np.newaxis, _to[i], channel_ids]
-        X = np.concatenate(X, axis = 0)
-        Y = np.concatenate(Y, axis = 0)
+            X[i] = self.X[_from[i]:_to[i], channel_ids]
+            Y[i] = self.Y[_to[i], channel_ids]
+        X = np.array(X)
+        Y = np.array(Y)
         self.batch += 1
         return X, Y
 
+class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
+
+    def __init__(self, data, batch_size, batches_per_epoch, 
+                 out_length, out_size, n_classes,
+                 intervals=None):
+        super(SequentialDiscreteRCDF, self).__init__(
+            data, batch_size, batches_per_epoch, 
+            out_length, out_size)
+        self.n_classes = n_classes
+        self._set_intervals(intervals)
+        self._data_preparation()
+    
+    def _set_intervals(self, intervals=None):
+        if intervals is None:
+            self.intervals = equalprob_interval_dividing(
+                self.data, self.n_classes)
+        else:
+            self.intervals = intervals
+    
+    def get_intervals(self):
+        return self.intervals
+        
+    def _data_preparation(self):
+        # self.X : (n_timestep, n_chan)
+        self.X = self.data
+        # self.Y : (n_ti1mestep, n_chan)
+        self.Y = continue2discrete(self.data, self.intervals)
+        self._onehotecd_preparation()
+        # self.Y : (n_chan, n_timestep, n_classes)
+        self.Y = np.array([self.ohe.transform(self.Y[:,i].reshape(-1,1)).todense() 
+                    for i in range(self.Y.shape[1])])
+    
+    def _onehotecd_preparation(self):
+        self.ohe = preprocessing.OneHotEncoder(n_values=self.n_classes)
+        self.ohe.fit(np.arange(self.n_classes, dtype=np.int32)
+                        .reshape(-1,1))
+    
+    def __next__(self):
+        X = [None] * self.batch_size
+        Y = [None] * self.batch_size
+        _from = np.random.randint(self._from, self._to, self.batch_size)
+        _to   = _from + self.out_length
+        for i in range(self.batch_size):
+            channel_ids = np.random.permutation(self.n_chan)[:self.out_size]
+            X[i] = self.X[_from[i]:_to[i], channel_ids]
+            Y[i] = self.Y[channel_ids, _to[i], :]
+        # Y : list of (out_size, n_classes)
+        X = np.array(X)
+        self.batch += 1
+        return X, Y
+    
+    def get_multistep_test_data(self, length):
+        # output:
+        #   X: 1 sample (1, out_length, out_size)
+        #   Y: 3-d array (length, out_size, n_classes)
+        #      starting from 'out_length'
+        if length > self.n_timestep - self.out_length:
+            raise ValueError("Queried length exceeded limit.\n"
+                             "Maximum length: {}"
+                             .format(self.n_timestep-self.out_length))
+        return (self.X[np.newaxis, :self.out_length, :self.out_size], 
+                self.Y[:self.out_size, self.out_length:self.out_length+length, :]
+                    .transpose(1,0,2))
+
+    def get_singlstep_test_data(self, length):
+        # output:
+        #   X: 'length' samples (length, out_length, out_size)
+        #   Y: 3-d array (length, out_size, n_classes)
+        #      starting from 'out_length'
+        if length > self.n_timestep - self.out_length:
+            raise ValueError("Queried length exceeded limit.\n"
+                             "Maximum length: {}"
+                             .format(self.n_timestep-self.out_length))
+        return (np.array([self.X[i:i+self.out_length, :self.out_size] 
+                    for i in range(length)]),
+                self.Y[:self.out_size, self.out_length:self.out_length+length, :]
+                    .transpose(1,0,2))
+
+
 
 if __name__ == '__main__':
-    data = pd.read_csv('../../data/prices.5min.top100volume/top80volumestocks.csv', 
-                        index_col = 'datetime').values
-    datafeeder = SequentialRandomChannelDataFeeder(data, 64, 1000, 100, 6)
-    valid_X, valid_Y, test_X, test_Y = datafeeder.extract_valid_test_data(0.1, 0.1)
-    print(valid_X, valid_Y)
+    data = np.load('../../data/NYSEtop80.1h.preprcd/train.npy')
+    datafeeder = SequentialDiscreteRCDF(data, 64, 1000, 100, 6, 256)
+    X, Y = next(datafeeder)
+    print(X.shape)
+    print(len(Y), Y[0].shape)
 
 
 # --------------------------- data normalization -------------------------
@@ -180,3 +316,25 @@ class Normalizer:
     def save(self, path):
         with open(path, 'wb') as f:
             f.write(pkl.dumps(self))
+
+class NoshiftNormalizer:
+
+    def __init__(self):
+        self._normalizer = preprocessing.StandardScaler(with_mean=False, with_std=True)
+
+    def _check_data(self, data):
+        if not isinstance(data, np.ndarray):
+            raise ValueError("data to be normalized should be of type '{}'".format(np.ndarray))
+        if data.ndim == 1:
+            data = data.reshape([-1, 1])
+        elif data.ndim >= 3:
+            raise ValueError("data should be with dim == 1 or 2")
+    
+    def normalize(self, data):
+        self._check_data(data)
+        return self._normalizer.fit_transform(data)
+    
+    def save(self, path):
+        with open(path, 'wb') as f:
+            f.write(pkl.dumps(self))
+

@@ -15,7 +15,7 @@ from .base import Model
 
 class SequentialModel(Model):
 
-    def __init__(self, solver=None, predictor=None): # TODO
+    def __init__(self, solver=None, predictor=None):
         super(SequentialModel, self).__init__()
         self.solver = solver
         self.predictor = predictor
@@ -70,7 +70,9 @@ class SequentialModel(Model):
             else:
                 self.train_hist[key] = value
 
-    def fit(self, X, Y, stages = 1, epochs=10, batch_size=64, end_time=None, save_path = None):
+    def fit(self, X, Y, stages = 1, epochs=10, batch_size=64,
+            end_time=None, save_path = None,
+            callback=None):
         if end_time is not None:
             self.end_by_timestamp = True
             try:
@@ -99,10 +101,13 @@ class SequentialModel(Model):
             self.stages += -1
             if save_path is not None:
                 self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
+            if callback is not None:
+                callback(self)
         self._print_epoch()
     
     def fit_generator(self, data_generator, stages=1, epochs=10, batches_per_epoch=1000, 
-                      end_time=None, valid_X=None, valid_Y=None, save_path=None): 
+                      end_time=None, validation_data=None, save_path=None,
+                      callback=None): 
         if end_time is not None:
             self.end_by_timestamp = True
             try:
@@ -126,14 +131,15 @@ class SequentialModel(Model):
         while not self._is_end():
             self._print_epoch()
             hist = self.solver.fit_generator(data_generator, 
-                                      valid_X = valid_X, valid_Y = valid_Y,
-                                      epochs = self.epochs, 
+                                      validation_data=validation_data, epochs = self.epochs, 
                                       batches_per_epoch = self.batches_per_epoch)
             self._append_history(hist)
             self.current_epoch += self.epochs
             self.stages += -1
             if save_path is not None:
                 self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
+            if callback is not None:
+                callback(self)
         self._print_epoch()
     
     def _pickle_self(self):
@@ -191,8 +197,15 @@ class SequentialModel(Model):
     def predict(self, X):
         return self.predictor.do_predict(self.solver, X)
     
+    def singlstep_predict(self, X):
+        return self.predictor.singlstep_predict(self.solver, X)
+
     def multistep_predict(self, X, n_steps):
         return self.predictor.multistep_predict(self.solver, X, n_steps)
+    
+    def multiseg_multistep_predict(self, X, n_segs, n_steps):
+        # TODO
+        pass
     
 
 

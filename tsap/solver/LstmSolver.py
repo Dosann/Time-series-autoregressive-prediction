@@ -82,16 +82,16 @@ class LstmSolverKeras(Solver):
                          validation_split = 0.01)
 
     def fit_generator(self, data_generator, epochs, batches_per_epoch, 
-                      valid_X=None, valid_Y=None):
+                      validation_data=None):
         self._check_input_generator(data_generator)
-        if valid_X is not None:
+        if validation_data is not None:
             return self._solver.fit_generator(data_generator, epochs = epochs, 
                                        steps_per_epoch = batches_per_epoch,
-                                       validation_data = [valid_X, valid_Y])
+                                       validation_data = validation_data,
+                                       validation_steps = 5)
         else:
             return self._solver.fit_generator(data_generator, epochs = epochs,
-                                       steps_per_epoch = batches_per_epoch,
-                                       validation_steps = 5)
+                                       steps_per_epoch = batches_per_epoch)
     
     def predict(self, X):
         assert(isinstance(X, np.ndarray))

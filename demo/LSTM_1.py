@@ -11,7 +11,7 @@ from tsap.model import sequential
 from tsap.predictor import DeterministicAutoregressivePredictor as dap
 from tsap.utils import data_util
 import numpy as np
-import pandas as pd
+import pandaspython lstm.keras.v2.py 10 6 --data_path '../data/prices.1h.top100volume/top80volumestocks.1h.logreturn.normalized.npy' --model_path '../model/Financial.Top80X6.lrets.norm.1h/FinData-CR-G1.1lay.10ts.100hu' --stages 10 --epochs 10 --batches_per_epoch 1000 --batch_size 64 --Solver SolverStructure2 --hidden_units 100 --CUDA_VISIBLE_DEVICES 0 --fit_generator as pd
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
