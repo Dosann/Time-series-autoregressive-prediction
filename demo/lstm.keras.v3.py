@@ -184,7 +184,7 @@ def to_graphic(model):
     X, Y = valid_feeder.get_singlstep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
-    prob, pred_value = model.singlstep_predict(model.solver, X)
+    prob, pred_value = model.singlstep_predict(X)
     pred_class = data_util.continue2discrete(pred_value, intervals)
     # draw figure
     f1 = draw(true_value, pred_value)
@@ -198,7 +198,7 @@ def to_graphic(model):
     X, Y = valid_feeder.get_multistep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
-    prob, pred_value = model.multistep_predict(model.solver, X, params['test_length'])
+    prob, pred_value = model.multistep_predict(X, params['test_length'])
     pred_class = data_util.continue2discrete(pred_value, intervals)
     # draw figure
     f1 = draw(true_value, pred_value)
@@ -283,7 +283,7 @@ if __name__ == '__main__':
         X, Y = test_feeder.get_singlstep_test_data(params['test_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.singlstep_predict(model.solver, X)
+        prob, pred_value = model.singlstep_predict(X)
         pred_class = data_util.continue2discrete(pred_value, intervals)
         # draw figure
         f1 = draw(true_value, pred_value)
@@ -297,7 +297,7 @@ if __name__ == '__main__':
         X, Y = test_feeder.get_multistep_test_data(params['test_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.multistep_predict(model.solver, X, params['test_length'])
+        prob, pred_value = model.multistep_predict(X, params['test_length'])
         pred_class = data_util.continue2discrete(pred_value, intervals)
         # draw figure
         f1 = draw(true_value, pred_value)
