@@ -246,11 +246,6 @@ def load_data(data_path):
 
 if __name__ == '__main__':
     params = ParseDiscreteLstmParams()
-    if params['montecarlo']:
-        predictor = pp.MCMCPredictor()
-    else:
-        predictor = dap.DetermDiscreteAGPredictor(params, intervals)
-    
     if not params['fit_generator']:
         raise ValueError("Only data generator supported here!\n"
                          "Try add argument '--fit_generator'")
@@ -267,6 +262,11 @@ if __name__ == '__main__':
                     params['input_length'], params['input_size'],
                     params['n_classes'], intervals)
 
+    if params['montecarlo']:
+        predictor = pp.MCMCPredictor()
+    else:
+        predictor = dap.DetermDiscreteAGPredictor(params, intervals)
+    
     if not params['test']: # train phase
         solver = eval(params['Solver'])(params)
         model = sequential.SequentialModel(solver=solver, predictor=predictor)
