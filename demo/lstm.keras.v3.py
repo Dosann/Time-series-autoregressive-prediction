@@ -187,6 +187,7 @@ def to_graphic(model):
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.singlstep_predict(X)
     pred_class = data_util.continue2discrete(pred_value, intervals)
+    print("Predicted classes of single-step test", pred_class)
     # draw figure
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
@@ -201,6 +202,7 @@ def to_graphic(model):
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
     pred_class = data_util.continue2discrete(pred_value, intervals)
+    print("Predicted classes of multi-step test", pred_class)
     # draw figure
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
