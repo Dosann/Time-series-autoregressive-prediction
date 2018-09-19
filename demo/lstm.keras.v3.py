@@ -161,7 +161,7 @@ def draw(true, pred, prob=None):
     input_length, _    = pred.shape
     input_length += -length
     # patch for true
-    patch_true = np.array([[None]*input_length for i in range(input_size)])
+    patch_true = np.array([[None]*input_size for i in range(input_length)])
     true = np.vstack([patch_true, true])
     # patch for prob
     if prob is not None:
