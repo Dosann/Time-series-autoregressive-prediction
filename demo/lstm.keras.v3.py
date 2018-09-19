@@ -96,15 +96,18 @@ def ParseDiscreteLstmParams():
         if 'test_path' not in params:
             raise ValueError("parameter '--test_path' is not specified.")
         params['test_path'] = RemoveQuotes(params['test_path'])
+        print("""test data path : {}""".format(params['test_path']))
         if 'test_length' not in params:
             raise ValueError("parameter '--test_length' is not specified.")
     else: # train phase
         if 'train_path' not in params:
             raise ValueError("parameter '--train_path' is not specified.")
         params['train_path'] = RemoveQuotes(params['train_path'])
+        print("""train data path : {}""".format(params['train_path']))
         if 'valid_path' not in params:
             raise ValueError("parameter '--valid_path' is not specified.")
         params['valid_path'] = RemoveQuotes(params['valid_path'])
+        print("""valid data path : {}""".format(params['valid_path']))
         if 'stages' not in params:
             raise ValueError("parameter '--stages' is not specified.")
         if 'epochs' not in params:
@@ -119,7 +122,6 @@ def ParseDiscreteLstmParams():
         os.environ['CUDA_VISIBLE_DEVICES'] = RemoveQuotes(params['CUDA_VISIBLE_DEVICES'])
     
     params['model_path'] = RemoveQuotes(params['model_path'])
-    print("""data path : {}""".format(params['data_path']))
     print("""model path : {}""".format(params['model_path']))
     return params
 
