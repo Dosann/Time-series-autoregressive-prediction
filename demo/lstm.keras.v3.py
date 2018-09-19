@@ -190,9 +190,9 @@ def to_graphic(model):
     # draw figure
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
-    f1.save(params['model_path'] + 
+    f1.savefig(params['model_path'] + 
         '.singlstep_pred.epoch{:0>4d}.jpg'.format(model.current_epoch))
-    f2.save(params['model_path'] + 
+    f2.savefig(params['model_path'] + 
         '.singlstep_pred.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
 
     # multistep test
@@ -204,9 +204,9 @@ def to_graphic(model):
     # draw figure
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
-    f1.save(params['model_path'] + 
+    f1.savefig(params['model_path'] + 
         '.multistep_pred.epoch{:0>4d}.jpg'.format(model.current_epoch))
-    f2.save(params['model_path'] + 
+    f2.savefig(params['model_path'] + 
         '.multistep_pred.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
 
 
@@ -293,9 +293,9 @@ if __name__ == '__main__':
         # draw figure
         f1 = draw(true_value, pred_value)
         f2 = draw(true_class, pred_class, prob)
-        f1.save(params['model_path'] + 
+        f1.savefig(params['model_path'] + 
             '.singlstep_pred.epoch{:0>4d}.test.jpg'.format(model.current_epoch))
-        f2.save(params['model_path'] + 
+        f2.savefig(params['model_path'] + 
             '.singlstep_pred.epoch{:0>4d}.hm..test.jpg'.format(model.current_epoch))
 
         # multistep test
@@ -307,9 +307,9 @@ if __name__ == '__main__':
         # draw figure
         f1 = draw(true_value, pred_value)
         f2 = draw(true_class, pred_class, prob)
-        f1.save(params['model_path'] + 
+        f1.savefig(params['model_path'] + 
             '.multistep_pred.epoch{:0>4d}.test.jpg'.format(model.current_epoch))
-        f2.save(params['model_path'] + 
+        f2.savefig(params['model_path'] + 
             '.multistep_pred.epoch{:0>4d}.hm.test.jpg'.format(model.current_epoch))
 
         
