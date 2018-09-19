@@ -83,7 +83,7 @@ class LstmSolverKeras(Solver):
 
     def fit_generator(self, data_generator, epochs, batches_per_epoch, 
                       validation_data=None):
-        self._check_input_generator(data_generator)
+        # self._check_input_generator(data_generator)
         if validation_data is not None:
             return self._solver.fit_generator(data_generator, epochs = epochs, 
                                        steps_per_epoch = batches_per_epoch,
