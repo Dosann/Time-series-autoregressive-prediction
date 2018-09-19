@@ -13,7 +13,7 @@ from tsap.model import sequential
 from tsap.predictor import DeterministicAutoregressivePredictor as dap
 from tsap.predictor import ProbabilisticPredictor as pp
 from tsap.solver.templates.LstmSolverStructures \
-    import DiscreteLstm1Layer
+    import DiscreteLstm1Layer, DiscreteLstm3Layer
 from tsap.utils import data_util
 import numpy as np
 import pandas as pd
