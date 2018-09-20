@@ -169,12 +169,12 @@ def draw(true, pred, prob=None):
         patch_prob = np.zeros([input_length, input_size, n_classes])
         prob = np.concatenate([patch_prob, prob], axis=0)
     # draw figure
-    f = plt.figure(figsize=(15,15))
+    f = plt.figure(dpi=200)
     layout = (input_size, 1)
     for dim in range(input_size):
         ax = plt.subplot2grid(layout, (dim,0))
         if prob is not None:
-            ax.imshow(prob[:,dim,:].T, aspect='auto', origin='lower')
+            ax.imshow(prob[:,dim,:].T, aspect='equal', origin='lower')
         ax.plot(true[:,dim], color='b', label='true')
         ax.plot(pred[:,dim], color='r', label='pred')
         f.add_axes(ax)
@@ -279,7 +279,7 @@ if __name__ == '__main__':
             train_with_generator(model, train_feeder, valid_feeder, params)
     else: # test phase
         test_feeder = data_util.SequentialDiscreteRCDF(
-                    load_data(params['test_path']), 
+                    load_data(params['train_path']), 
                     params['batch_size'], params['batches_per_epoch'], 
                     params['input_length'], params['input_size'],
                     params['n_classes'], intervals)
