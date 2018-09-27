@@ -276,25 +276,36 @@ def draw_test_summary():
     X, Y = test_feeder.get_multistep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
-    # prob : (n_samples, length, input_size, n_classes)
-    # pred_value : (n_samples, input_length+length, input_size)
+    # (if MCMC) prob : (n_samples, length, input_size, n_classes)
+    # (if MCMC) pred_value : (n_samples, input_length+length, input_size)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    # prob : (length, input_size, n_classes)
-    prob = prob.mean(axis=0)
-    if params['montecarlo_pred_mode'] == 'modal':
-        pred_class = data_util.continue2discrete(pred_value, intervals)
-        n_samples, l, input_size = pred_value.shape
-        pred_class = mode(pred_class, axis=0)[0].reshape((l,input_size))
-    elif params['montecarlo_pred_mode'] == 'mean':
-        pred_class = prob.argmax(axis=-1)
-    pred_value = discrete2continue(pred_class, intervals)
+    # (if MCMC) prob : (length, input_size, n_classes)
+    if params['montecarlo']:
+        prob = prob.mean(axis=0)
+        if params['montecarlo_pred_mode'] == 'modal':
+            pred_class = continue2discrete(pred_value, intervals)
+            _, l, input_size = pred_value.shape
+            pred_class = mode(pred_class, axis=0)[0].reshape((l,input_size))
+        elif params['montecarlo_pred_mode'] == 'mean':
+            pred_class = prob.argmax(axis=-1)
+        pred_value = discrete2continue(pred_class, intervals)
+    else:
+        pred_class = continue2discrete(pred_value, intervals)
     # draw figure
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
-    f1.savefig(params['model_path'] + 
-        '.multistep_pred.epoch{:0>4d}.test.jpg'.format(model.current_epoch))
-    f2.savefig(params['model_path'] + 
-        '.multistep_pred.epoch{:0>4d}.hm.test.jpg'.format(model.current_epoch))
+    if params['montecarlo']:
+        fname1 = params['model_path'] + '.multistep_pred.epoch{:0>4d}.test.MCMC.{}.jpg' \
+        .format(model.current_epoch, params['montecarlo_pred_mode'])
+        fname2 = params['model_path'] + '.multistep_pred.epoch{:0>4d}.hm.test.MCMC.{}.jpg' \
+        .format(model.current_epoch, params['montecarlo_pred_mode'])
+    else:
+        fname1 = params['model_path'] + '.multistep_pred.epoch{:0>4d}.test.jpg' \
+        .format(model.current_epoch)
+        fname2 = params['model_path'] + '.multistep_pred.epoch{:0>4d}.hm.test.jpg' \
+        .format(model.current_epoch)
+    f1.savefig()
+    f2.savefig()
 
 if __name__ == '__main__':
     params = ParseDiscreteLstmParams()
