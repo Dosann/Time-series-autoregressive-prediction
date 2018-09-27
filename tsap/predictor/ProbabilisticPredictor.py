@@ -83,9 +83,7 @@ class MCMCPredictor(Predictor):
             # sample from class prob
             pred = [None]*self.n_samples
             for s,samp in enumerate(prob):
-                print(samp[0])
-                print(samp[0].sum())
-                pred[s] = [np.random.multinomial(1,chan) \
+                pred[s] = [np.random.multinomial(1,chan/chan.sum()) \
                     .argmax() for chan in samp]
             pred = np.array(pred) # (n_samples, input_size)
             pred_history[:,input_length+i,...] = discrete2continue(pred, self.intervals)
