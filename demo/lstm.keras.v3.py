@@ -304,8 +304,8 @@ def draw_test_summary():
         .format(model.current_epoch)
         fname2 = params['model_path'] + '.multistep_pred.epoch{:0>4d}.hm.test.jpg' \
         .format(model.current_epoch)
-    f1.savefig()
-    f2.savefig()
+    f1.savefig(fname1)
+    f2.savefig(fname2)
 
 if __name__ == '__main__':
     params = ParseDiscreteLstmParams()
