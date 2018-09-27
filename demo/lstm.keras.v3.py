@@ -14,9 +14,11 @@ from tsap.predictor import DeterministicAutoregressivePredictor as dap
 from tsap.predictor import ProbabilisticPredictor as pp
 from tsap.solver.templates.LstmSolverStructures \
     import DiscreteLstm1Layer, DiscreteLstm3Layer
+from tsap.utils.data_util import discrete2continue, continue2discrete
 from tsap.utils import data_util
 import numpy as np
 import pandas as pd
+from scipy.stats import mode
 import argparse
 import matplotlib
 
@@ -83,6 +85,11 @@ def ParseDiscreteLstmParams():
     parser.add_argument('--montecarlo', action='store_true', default=False,
                         help = 'Use monte carlo multi-step prediction '
                                'if this argument included.')
+    parser.add_argument('--n_samples', type=int,
+                        help = 'Number of samples when using MCMC '
+                               'for multistep prediction')
+    parser.add_argument('--montecarlo_pred_mode', type=str, default='modal',
+                        help = 'the way to summary predictions of all samples')
     # parser.add_argument('--n_figs', type = int, default = 1,
     #                     help = '(test phase) # of dimensions to draw when test')
     params = vars(parser.parse_args())
@@ -100,6 +107,11 @@ def ParseDiscreteLstmParams():
         print("""test data path : {}""".format(params['test_path']))
         if 'test_length' not in params:
             raise ValueError("parameter '--test_length' is not specified.")
+        # check MCMC arguments
+        if params['montecarlo']:
+            if 'n_samples' not in params:
+                raise ValueError("parameter '--n_samples' not specified "
+                                 "while '--montecarlo' mode is on")
     else: # train phase
         if 'train_path' not in params:
             raise ValueError("parameter '--train_path' is not specified.")
@@ -244,7 +256,45 @@ def load_data(data_path):
 #     if data.squeeze().ndim == 1: # if data is saved as an 1-d array, reshape it to 2-D
 #         data = data.reshape([-1,1])
 #     return data_util.SerieToPieces(data, piece_length = input_length)
-    
+
+def draw_test_summary():
+    # singlstep test   
+    X, Y = test_feeder.get_singlstep_test_data(params['test_length'])
+    true_class = Y.argmax(axis=-1)
+    true_value = data_util.discrete2continue(true_class, intervals)
+    prob, pred_value = model.singlstep_predict(X)
+    pred_class = data_util.continue2discrete(pred_value, intervals)
+    # draw figure
+    f1 = draw(true_value, pred_value)
+    f2 = draw(true_class, pred_class, prob)
+    f1.savefig(params['model_path'] + 
+        '.singlstep_pred.epoch{:0>4d}.test.jpg'.format(model.current_epoch))
+    f2.savefig(params['model_path'] + 
+        '.singlstep_pred.epoch{:0>4d}.hm.test.jpg'.format(model.current_epoch))
+
+    # multistep test
+    X, Y = test_feeder.get_multistep_test_data(params['test_length'])
+    true_class = Y.argmax(axis=-1)
+    true_value = data_util.discrete2continue(true_class, intervals)
+    # prob : (n_samples, length, input_size, n_classes)
+    # pred_value : (n_samples, input_length+length, input_size)
+    prob, pred_value = model.multistep_predict(X, params['test_length'])
+    # prob : (length, input_size, n_classes)
+    prob = prob.mean(axis=0)
+    if params['montecarlo_pred_mode'] == 'modal':
+        pred_class = data_util.continue2discrete(pred_value, intervals)
+        n_samples, l, input_size = pred_value.shape
+        pred_class = mode(pred_class, axis=0)[0].reshape((l,input_size))
+    elif params['montecarlo_pred_mode'] == 'mean':
+        pred_class = prob.argmax(axis=-1)
+    pred_value = discrete2continue(pred_class, intervals)
+    # draw figure
+    f1 = draw(true_value, pred_value)
+    f2 = draw(true_class, pred_class, prob)
+    f1.savefig(params['model_path'] + 
+        '.multistep_pred.epoch{:0>4d}.test.jpg'.format(model.current_epoch))
+    f2.savefig(params['model_path'] + 
+        '.multistep_pred.epoch{:0>4d}.hm.test.jpg'.format(model.current_epoch))
 
 if __name__ == '__main__':
     params = ParseDiscreteLstmParams()
@@ -265,7 +315,7 @@ if __name__ == '__main__':
                     params['n_classes'], intervals)
 
     if params['montecarlo']:
-        predictor = pp.MCMCPredictor()
+        predictor = pp.MCMCPredictor(params, intervals)
     else:
         predictor = dap.DetermDiscreteAGPredictor(params, intervals)
     
@@ -286,32 +336,4 @@ if __name__ == '__main__':
         model = sequential.SequentialModel.load_model(params['model_path'])
         model._set_predictor(predictor)
 
-        # multistep test   
-        X, Y = test_feeder.get_singlstep_test_data(params['test_length'])
-        true_class = Y.argmax(axis=-1)
-        true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.singlstep_predict(X)
-        pred_class = data_util.continue2discrete(pred_value, intervals)
-        # draw figure
-        f1 = draw(true_value, pred_value)
-        f2 = draw(true_class, pred_class, prob)
-        f1.savefig(params['model_path'] + 
-            '.singlstep_pred.epoch{:0>4d}.test.jpg'.format(model.current_epoch))
-        f2.savefig(params['model_path'] + 
-            '.singlstep_pred.epoch{:0>4d}.hm..test.jpg'.format(model.current_epoch))
-
-        # multistep test
-        X, Y = test_feeder.get_multistep_test_data(params['test_length'])
-        true_class = Y.argmax(axis=-1)
-        true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.multistep_predict(X, params['test_length'])
-        pred_class = data_util.continue2discrete(pred_value, intervals)
-        # draw figure
-        f1 = draw(true_value, pred_value)
-        f2 = draw(true_class, pred_class, prob)
-        f1.savefig(params['model_path'] + 
-            '.multistep_pred.epoch{:0>4d}.test.jpg'.format(model.current_epoch))
-        f2.savefig(params['model_path'] + 
-            '.multistep_pred.epoch{:0>4d}.hm.test.jpg'.format(model.current_epoch))
-
-        
+        draw_test_summary()

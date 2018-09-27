@@ -6,9 +6,9 @@
 # -------------------------------
 
 from .base import Predictor
+from ..utils.data_util import discrete2continue
 import numpy as np
 import pickle
-from tsap.utils.data_util import discrete2continue
 
 class DeterministicAutoregressivePredictor(Predictor):
 
@@ -54,6 +54,10 @@ class DetermDiscreteAGPredictor(Predictor):
         self.intervals = intervals
     
     def do_predict(self, solver, X):
+        # X : (input_length, input_size)
+        # return :
+        #   prob : (input_size, n_classes)
+        #   pred : (input_size)
         prob = solver.predict(X[np.newaxis,...]) # [(1, n_classes)] or (1, n_classes)
         if type(prob) is list:
             prob = np.concatenate(prob, axis=0) # (input_size, n_classes)
@@ -65,8 +69,8 @@ class DetermDiscreteAGPredictor(Predictor):
         # return : 
         #   prob_history : (length, input_size, n_classes)
         #   pred_history : (input_length+length, input_size)
-        # probabilities for all future steps
         n_steps, input_length, input_size = X.shape
+        # probabilities for all future steps
         prob_history = np.zeros((n_steps, input_size, self.n_classes),
                                 dtype=np.float32)
         # past history + future prediction
