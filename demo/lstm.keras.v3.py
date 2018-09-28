@@ -187,7 +187,7 @@ def draw(true, pred, prob=None):
     for dim in range(input_size):
         ax = plt.subplot2grid(layout, (dim,0))
         if prob is not None:
-            ax.imshow(prob[:,dim,:].T, aspect='equal', origin='lower')
+            ax.imshow(prob[:,dim,:].T, aspect='equal', origin='lower', cmap=plt.cm.gray)
         ax.plot(true[:,dim], color='b', label='true')
         ax.plot(pred[:,dim], color='r', label='pred')
         f.add_axes(ax)
