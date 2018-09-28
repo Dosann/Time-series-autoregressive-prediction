@@ -341,7 +341,7 @@ if __name__ == '__main__':
             train_with_generator(model, train_feeder, valid_feeder, params)
     else: # test phase
         test_feeder = data_util.SequentialDiscreteRCDF(
-                    load_data(params['train_path']), 
+                    load_data(params['test_path']), 
                     params['batch_size'], params['batches_per_epoch'], 
                     params['input_length'], params['input_size'],
                     params['n_classes'], intervals)
