@@ -177,7 +177,7 @@ def draw(true, pred, prob=None):
     true = np.vstack([patch_true, true])
     # patch for prob
     if prob is not None:
-        prob = np.log(prob)
+        prob = prob / prob.sum(axis=-1, keepdims=True)
         _, _, n_classes = prob.shape
         patch_prob = np.zeros([input_length, input_size, n_classes])
         prob = np.concatenate([patch_prob, prob], axis=0)
