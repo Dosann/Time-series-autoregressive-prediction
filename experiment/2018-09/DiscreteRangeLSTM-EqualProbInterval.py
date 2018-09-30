@@ -51,7 +51,9 @@ def ParseDiscreteLstmParams():
                                'the whole range is divided into')
     parser.add_argument('--train_path', type = str,
                         help = 'path of train data (raw sequential numpy array)')
-    parser.add_argument('--valid_path', type = str,
+    parser.add_argument('--valid_path1', type = str,
+                        help = 'path of valid data (raw sequential numpy array)')
+    parser.add_argument('--valid_path2', type = str,
                         help = 'path of valid data (raw sequential numpy array)')
     parser.add_argument('--test_path', type = str,
                         help = 'path of test data (raw sequential numpy array)')
@@ -119,10 +121,14 @@ def ParseDiscreteLstmParams():
             raise ValueError("parameter '--train_path' is not specified.")
         params['train_path'] = RemoveQuotes(params['train_path'])
         print("""train data path : {}""".format(params['train_path']))
-        if 'valid_path' not in params:
-            raise ValueError("parameter '--valid_path' is not specified.")
-        params['valid_path'] = RemoveQuotes(params['valid_path'])
-        print("""valid data path : {}""".format(params['valid_path']))
+        if 'valid_path1' not in params:
+            raise ValueError("parameter '--valid_path1' is not specified.")
+        params['valid_path1'] = RemoveQuotes(params['valid_path1'])
+        print("""valid1 data path : {}""".format(params['valid1_path']))
+        if 'valid_path2' not in params:
+            raise ValueError("parameter '--valid_path2' is not specified.")
+        params['valid_path2'] = RemoveQuotes(params['valid_path2'])
+        print("""valid2 data path : {}""".format(params['valid2_path']))
         if 'stages' not in params:
             raise ValueError("parameter '--stages' is not specified.")
         if 'epochs' not in params:
