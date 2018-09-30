@@ -206,7 +206,6 @@ def rmse(true, pred):
     RMSE = np.square(true - pred).mean()**0.5
     return RMSE
 
-
 def stage_callback(model):
     hist = []
     if os.path.exists(params['hist_path']):
@@ -306,7 +305,7 @@ def stage_callback(model):
         elif params['montecarlo_pred_mode'] == 'mean':
             pred_class = prob.argmax(axis=-1)
         pred_value = discrete2continue(pred_class, intervals)
-        return pred_class, pred_value
+        return pred_class, pred_value, prob
 
     # multistep : MCMC predictor
     model._set_predictor(predictor_m)
@@ -315,7 +314,7 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    pred_class, pred_value = montecarlo_pred_summary(prob, pred_value, intervals)
+    pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['train.multistep.mcmc.true.value'] = true_value
     RMSE['train.multistep.mcmc.true.class'] = true_class
     RMSE['train.multistep.mcmc.pred.value'] = pred_value
@@ -326,7 +325,7 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    pred_class, pred_value = montecarlo_pred_summary(prob, pred_value, intervals)
+    pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['valid.2.multistep.mcmc.true.value'] = true_value
     RMSE['valid.2.multistep.mcmc.true.class'] = true_class
     RMSE['valid.2.multistep.mcmc.pred.value'] = pred_value
@@ -337,7 +336,7 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    pred_class, pred_value = montecarlo_pred_summary(prob, pred_value, intervals)
+    pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['valid.1.multistep.mcmc.true.value'] = true_value
     RMSE['valid.1.multistep.mcmc.true.class'] = true_class
     RMSE['valid.1.multistep.mcmc.pred.value'] = pred_value
