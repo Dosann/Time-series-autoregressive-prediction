@@ -343,6 +343,7 @@ def stage_callback(model):
     RMSE['valid.1.multistep.mcmc.pred.class'] = pred_class
     RMSE['valid.1.multistep.mcmc.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
     # draw figure
+    print(true_value.shape, pred_value.shape, prob.shape)
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
     f1.savefig(params['model_path'] + 
