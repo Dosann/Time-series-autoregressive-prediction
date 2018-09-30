@@ -297,7 +297,7 @@ def stage_callback(model):
         '.multistep_pred.determ.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
 
 
-    # multistep : deterministic predictor
+    # multistep : MCMC predictor
     model._set_predictor(predictor_m)
     # multistep test for trainset
     X, Y = train_feeder.get_multistep_test_data(params['test_length'])

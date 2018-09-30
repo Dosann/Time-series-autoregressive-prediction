@@ -66,11 +66,6 @@ class MCMCPredictor(Predictor):
         #   pred_history : (n_samples, input_length+length, input_size)
         _ , input_length, input_size = X.shape
         # probabilities for all future steps
-        print("n_samples : {}".format(self.n_samples))
-        print("n_steps : {}".format(n_steps))
-        print("input_size : {}".format(input_size))
-        print("n_classes : {}".format(self.n_classes))
-
         prob_history = np.zeros((self.n_samples, n_steps, input_size, self.n_classes),
                                 dtype=np.float32)
         # past history + future prediction
