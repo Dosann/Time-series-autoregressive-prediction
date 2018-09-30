@@ -146,6 +146,7 @@ class SequentialRandomChannelDataFeeder:
         self.out_size = out_size
         self._check_data()
         self._reset()
+        self._data_preparation()
 
     # DO NOT USE THIS FUNCTION !!!
     # def extract_valid_test_data(self, valid_split, test_split,
