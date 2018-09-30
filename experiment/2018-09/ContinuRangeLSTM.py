@@ -100,7 +100,7 @@ def ParseDiscreteLstmParams():
         params['test_path'] = RemoveQuotes(params['test_path'])
         print("""test data path : {}""".format(params['test_path']))
         if 'test_length' not in params:
-            raise ValueError("parameter '--test_length' is not specified.")]
+            raise ValueError("parameter '--test_length' is not specified.")
     else: # train phase
         if 'train_path' not in params:
             raise ValueError("parameter '--train_path' is not specified.")
@@ -317,7 +317,7 @@ def draw_test_summary():
     true = Y
     pred = model.multistep_predict(X, params['test_length'])
     # (if MCMC) prob : (length, input_size, n_classes)
-        pred_class = continue2discrete(pred_value, intervals)
+    pred_class = continue2discrete(pred_value, intervals)
     # draw figure
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
