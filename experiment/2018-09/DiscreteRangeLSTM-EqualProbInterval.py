@@ -336,6 +336,7 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
+    print(true_value.shape, pred_value.shape, prob.shape)
     pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['valid.1.multistep.mcmc.true.value'] = true_value
     RMSE['valid.1.multistep.mcmc.true.class'] = true_class
