@@ -144,7 +144,7 @@ def ParseDiscreteLstmParams():
     
     params['model_path'] = RemoveQuotes(params['model_path'])
     print("""model path : {}""".format(params['model_path']))
-    params['hist_path'] = params['model_path'] + 'hist.json'
+    params['hist_path'] = params['model_path'] + '.hist.pkl'
     return params
 
 # def train(model, train_X, train_Y, params):
@@ -253,60 +253,114 @@ def stage_callback(model):
     f2.savefig(params['model_path'] + 
         '.singlstep_pred.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
 
-
+    # multistep : deterministic predictor
+    model._set_predictor(predictor_d)
     # multistep test for trainset
     X, Y = train_feeder.get_multistep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
     pred_class = data_util.continue2discrete(pred_value, intervals)
-    RMSE['train.multistep.true.value'] = true_value
-    RMSE['train.multistep.true.class'] = true_class
-    RMSE['train.multistep.pred.value'] = pred_value
-    RMSE['train.multistep.pred.class'] = pred_class
-    RMSE['train.multistep.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
+    RMSE['train.multistep.determ.true.value'] = true_value
+    RMSE['train.multistep.determ.true.class'] = true_class
+    RMSE['train.multistep.determ.pred.value'] = pred_value
+    RMSE['train.multistep.determ.pred.class'] = pred_class
+    RMSE['train.multistep.determ.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
     # multistep test for validset.2
     X, Y = valid_feeder2.get_multistep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
     pred_class = data_util.continue2discrete(pred_value, intervals)
-    RMSE['valid.2.multistep.true.value'] = true_value
-    RMSE['valid.2.multistep.true.class'] = true_class
-    RMSE['valid.2.multistep.pred.value'] = pred_value
-    RMSE['valid.2.multistep.pred.class'] = pred_class
-    RMSE['valid.2.multistep.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
+    RMSE['valid.2.multistep.determ.true.value'] = true_value
+    RMSE['valid.2.multistep.determ.true.class'] = true_class
+    RMSE['valid.2.multistep.determ.pred.value'] = pred_value
+    RMSE['valid.2.multistep.determ.pred.class'] = pred_class
+    RMSE['valid.2.multistep.determ.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
     # multistep test for validset.1
     X, Y = valid_feeder1.get_multistep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
     pred_class = data_util.continue2discrete(pred_value, intervals)
-    RMSE['valid.1.multistep.true.value'] = true_value
-    RMSE['valid.1.multistep.true.class'] = true_class
-    RMSE['valid.1.multistep.pred.value'] = pred_value
-    RMSE['valid.1.multistep.pred.class'] = pred_class
-    RMSE['valid.1.multistep.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
+    RMSE['valid.1.multistep.determ.true.value'] = true_value
+    RMSE['valid.1.multistep.determ.true.class'] = true_class
+    RMSE['valid.1.multistep.determ.pred.value'] = pred_value
+    RMSE['valid.1.multistep.determ.pred.class'] = pred_class
+    RMSE['valid.1.multistep.determ.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
     # draw figure
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
     f1.savefig(params['model_path'] + 
-        '.multistep_pred.epoch{:0>4d}.jpg'.format(model.current_epoch))
+        '.multistep_pred.determ.epoch{:0>4d}.jpg'.format(model.current_epoch))
     f2.savefig(params['model_path'] + 
-        '.multistep_pred.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
+        '.multistep_pred.determ.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
+
+
+    # multistep : deterministic predictor
+    model._set_predictor(predictor_m)
+    # multistep test for trainset
+    X, Y = train_feeder.get_multistep_test_data(params['test_length'])
+    true_class = Y.argmax(axis=-1)
+    true_value = data_util.discrete2continue(true_class, intervals)
+    prob, pred_value = model.multistep_predict(X, params['test_length'])
+    pred_class = data_util.continue2discrete(pred_value, intervals)
+    RMSE['train.multistep.mcmc.true.value'] = true_value
+    RMSE['train.multistep.mcmc.true.class'] = true_class
+    RMSE['train.multistep.mcmc.pred.value'] = pred_value
+    RMSE['train.multistep.mcmc.pred.class'] = pred_class
+    RMSE['train.multistep.mcmc.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
+    # multistep test for validset.2
+    X, Y = valid_feeder2.get_multistep_test_data(params['test_length'])
+    true_class = Y.argmax(axis=-1)
+    true_value = data_util.discrete2continue(true_class, intervals)
+    prob, pred_value = model.multistep_predict(X, params['test_length'])
+    pred_class = data_util.continue2discrete(pred_value, intervals)
+    RMSE['valid.2.multistep.mcmc.true.value'] = true_value
+    RMSE['valid.2.multistep.mcmc.true.class'] = true_class
+    RMSE['valid.2.multistep.mcmc.pred.value'] = pred_value
+    RMSE['valid.2.multistep.mcmc.pred.class'] = pred_class
+    RMSE['valid.2.multistep.mcmc.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
+    # multistep test for validset.1
+    X, Y = valid_feeder1.get_multistep_test_data(params['test_length'])
+    true_class = Y.argmax(axis=-1)
+    true_value = data_util.discrete2continue(true_class, intervals)
+    prob, pred_value = model.multistep_predict(X, params['test_length'])
+    pred_class = data_util.continue2discrete(pred_value, intervals)
+    RMSE['valid.1.multistep.mcmc.true.value'] = true_value
+    RMSE['valid.1.multistep.mcmc.true.class'] = true_class
+    RMSE['valid.1.multistep.mcmc.pred.value'] = pred_value
+    RMSE['valid.1.multistep.mcmc.pred.class'] = pred_class
+    RMSE['valid.1.multistep.mcmc.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
+    # draw figure
+    f1 = draw(true_value, pred_value)
+    f2 = draw(true_class, pred_class, prob)
+    f1.savefig(params['model_path'] + 
+        '.multistep_pred.mcmc.epoch{:0>4d}.jpg'.format(model.current_epoch))
+    f2.savefig(params['model_path'] + 
+        '.multistep_pred.mcmc.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
+
+    plt.close('all')
 
     print("\n" + "#"*80)
     print("RMSE: epoch = {}".format(RMSE['epoch']))
     print("{} | {} | {} | {}".format(
         ''.ljust(15), 'train'.ljust(15), 'valid.1'.ljust(15), 'valid.2'.ljust(10)))
     print("{} | {:>.10} | {:>.10} | {:>.10}".format(
-        'singlstep'.ljust(15), str(RMSE['train.singlstep.rmse']).ljust(15),
+        'singlstep'.ljust(20), 
+        str(RMSE['train.singlstep.rmse']).ljust(15),
         str(RMSE['valid.1.singlstep.rmse']).ljust(15),
         str(RMSE['valid.2.singlstep.rmse']).ljust(15)))
     print("{} | {:>.10} | {:>.10} | {:>.10}".format(
-        'multistep'.ljust(15), str(RMSE['train.multistep.rmse']).ljust(15),
-        str(RMSE['valid.1.multistep.rmse']).ljust(15),
-        str(RMSE['valid.2.multistep.rmse']).ljust(15)))
+        'multistep.determ'.ljust(20), 
+        str(RMSE['train.multistep.determ.rmse']).ljust(15),
+        str(RMSE['valid.1.multistep.determ.determ.rmse']).ljust(15),
+        str(RMSE['valid.2.multistep.determ.determ.rmse']).ljust(15)))
+    print("{} | {:>.10} | {:>.10} | {:>.10}".format(
+        'multistep.mcmc'.ljust(20), 
+        str(RMSE['train.multistep.mcmc.rmse']).ljust(15),
+        str(RMSE['valid.1.multistep.mcmc.determ.rmse']).ljust(15),
+        str(RMSE['valid.2.multistep.mcmc.determ.rmse']).ljust(15)))
     print("#"*80 + '\n')
 
     hist.append(RMSE)
@@ -420,14 +474,12 @@ if __name__ == '__main__':
                     params['input_length'], params['input_size'],
                     params['n_classes'], intervals)
 
-    if params['montecarlo']:
-        predictor = pp.MCMCPredictor(params, intervals)
-    else:
-        predictor = dap.DetermDiscreteAGPredictor(params, intervals)
+    predictor_d = pp.MCMCPredictor(params, intervals)
+    predictor_m = dap.DetermDiscreteAGPredictor(params, intervals)
     
     if not params['test']: # train phase
         solver = eval(params['Solver'])(params)
-        model = sequential.SequentialModel(solver=solver, predictor=predictor)
+        model = sequential.SequentialModel(solver=solver, predictor=predictor_d)
         if not params['fit_generator']:
             raise ValueError("Only data generator supported here!\n"
                              "Try add argument '--fit_generator'")
@@ -440,6 +492,7 @@ if __name__ == '__main__':
                     params['input_length'], params['input_size'],
                     params['n_classes'], intervals)
         model = sequential.SequentialModel.load_model(params['model_path'])
-        model._set_predictor(predictor)
-
-        draw_test_summary()
+        if params['montecarlo']:
+            model._set_predictor(predictor_m)
+        else:
+            model._set_predictor(predictor_d)
