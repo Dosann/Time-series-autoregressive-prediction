@@ -304,7 +304,7 @@ def stage_callback(model):
             pred_class = mode(pred_class, axis=0)[0].reshape((l,input_size))
         elif params['montecarlo_pred_mode'] == 'mean':
             pred_class = np.vstack(
-                [pred_value[0,:-prob.shape[0],:],
+                [continue2discrete(pred_value[0,:-prob.shape[0],:]),
                 prob.argmax(axis=-1)])
         pred_value = discrete2continue(pred_class, intervals)
         return pred_class, pred_value, prob

@@ -304,7 +304,7 @@ def stage_callback(model):
             pred_class = mode(pred_class, axis=0)[0].reshape((l,input_size))
         elif params['montecarlo_pred_mode'] == 'mean':
             pred_class = np.vstack(
-                [pred_value[0,:-prob.shape[0],:],
+                [continue2discrete(pred_value[0,:-prob.shape[0],:], intervals),
                 prob.argmax(axis=-1)])
         pred_value = discrete2continue(pred_class, intervals)
         return pred_class, pred_value, prob
@@ -338,7 +338,6 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    print(true_value.shape, pred_value.shape, prob.shape)
     pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['valid.1.multistep.mcmc.true.value'] = true_value
     RMSE['valid.1.multistep.mcmc.true.class'] = true_class
@@ -346,7 +345,6 @@ def stage_callback(model):
     RMSE['valid.1.multistep.mcmc.pred.class'] = pred_class
     RMSE['valid.1.multistep.mcmc.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
     # draw figure
-    print(true_value.shape, pred_value.shape, prob.shape)
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
     f1.savefig(params['model_path'] + 
