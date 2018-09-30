@@ -347,7 +347,7 @@ if __name__ == '__main__':
                     params['batch_size'], params['batches_per_epoch'], 
                     params['input_length'], params['input_size'])
 
-    predictor = dap.DeterministicAutoregressivePredictor(params)
+    predictor = dap.DeterministicAutoregressivePredictor()
     
     if not params['test']: # train phase
         solver = eval(params['Solver'])(params)
