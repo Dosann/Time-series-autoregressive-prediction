@@ -20,7 +20,8 @@ class DeterministicAutoregressivePredictor(Predictor):
         # return:
         #   predict: (batch_size, input_size)
         predict = solver.predict(X)
-        predict = predict.reshape((predict.size, ))
+        if predict.ndim == 1:
+            predict = predict[:, np.newaxis]
         return predict
     
     def singlstep_predict(self, solver, X):

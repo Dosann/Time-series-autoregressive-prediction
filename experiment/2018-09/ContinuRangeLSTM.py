@@ -201,7 +201,7 @@ def stage_callback(model):
     pred = model.singlstep_predict(X)
     RMSE['train.singlstep.true.value'] = true
     RMSE['train.singlstep.pred.value'] = pred
-    RMSE['train.singlstep.rmse'] = rmse(true_value, pred[-true.shape[0]:,:])
+    RMSE['train.singlstep.rmse'] = rmse(true, pred[-true.shape[0]:,:])
     # singlestep test for validset.2
     X, true = valid_feeder2.get_singlstep_test_data(params['test_length'])
     pred = model.singlstep_predict(X)
@@ -216,7 +216,7 @@ def stage_callback(model):
     RMSE['valid.1.singlstep.rmse'] = rmse(true, pred[-true.shape[0]:,:])
     
     # draw figure
-    f1 = draw(true_value, pred_value)
+    f1 = draw(true, pred)
     f1.savefig(params['model_path'] + 
         '.singlstep_pred.epoch{:0>4d}.jpg'.format(model.current_epoch))
 
