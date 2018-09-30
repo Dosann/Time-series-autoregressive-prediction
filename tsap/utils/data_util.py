@@ -229,7 +229,7 @@ class SequentialRandomChannelDataFeeder:
                              .format(self.n_timestep-self.out_length))
         return (np.array([self.X[i:i+self.out_length, :self.out_size] 
                     for i in range(length)]),
-                self.Y[self.out_length:self.out_length+length, self.out_size])
+                self.Y[self.out_length:self.out_length+length, :self.out_size])
 
 
 class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):

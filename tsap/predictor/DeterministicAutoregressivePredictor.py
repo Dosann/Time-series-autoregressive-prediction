@@ -29,7 +29,6 @@ class DeterministicAutoregressivePredictor(Predictor):
         # return:
         #   pred_history: (input_length+length, input_size)
         pred = self.do_predict(solver, X)
-        print(X.shape, pred.shape)
         pred_history = np.vstack([
             X[0], pred])
         return pred_history
