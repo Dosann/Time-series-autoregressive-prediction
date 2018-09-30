@@ -219,7 +219,7 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
         self._set_intervals(intervals, interv_dividing_method)
         self._data_preparation()
     
-    def _set_intervals(self, intervals=None, interv_dividing_method):
+    def _set_intervals(self, intervals, interv_dividing_method):
         if intervals is None:
             self.intervals = interv_dividing_method(
                 self.data, self.n_classes)
