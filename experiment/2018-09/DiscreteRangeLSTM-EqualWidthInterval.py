@@ -258,7 +258,7 @@ def stage_callback(model):
     X, Y = train_feeder.get_multistep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
-    prob, pred_value = model.multistep_predict(X)
+    prob, pred_value = model.multistep_predict(X, params['test_length'])
     pred_class = data_util.continue2discrete(pred_value, intervals)
     RMSE['train.multistep.true.value'] = true_value
     RMSE['train.multistep.true.class'] = true_class
@@ -269,7 +269,7 @@ def stage_callback(model):
     X, Y = valid_feeder2.get_multistep_test_data(params['test_length'])
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
-    prob, pred_value = model.multistep_predict(X)
+    prob, pred_value = model.multistep_predict(X, params['test_length'])
     pred_class = data_util.continue2discrete(pred_value, intervals)
     RMSE['valid.2.multistep.true.value'] = true_value
     RMSE['valid.2.multistep.true.class'] = true_class
