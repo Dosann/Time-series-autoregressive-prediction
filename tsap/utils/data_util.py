@@ -206,6 +206,31 @@ class SequentialRandomChannelDataFeeder:
         self.batch += 1
         return X, Y
 
+    def get_multistep_test_data(self, length):
+        # output:
+        #   X: 1 sample (1, out_length, out_size)
+        #   Y: 2-d array (length, out_size)
+        if length > self.n_timestep - self.out_length:
+            raise ValueError("Queried length exceeded limit.\n"
+                             "Maximum length: {}"
+                             .format(self.n_timestep-self.out_length))
+        return (self.X[np.newaxis, :self.out_length, :self.out_size], 
+                self.Y[self.out_length:self.out_length+length, :self.out_size])
+
+    def get_singlstep_test_data(self, length):
+        # output:
+        #   X: 'length' samples (length, out_length, out_size)
+        #   Y: 2-d array (length, out_size)
+        #      starting from 'out_length'
+        if length > self.n_timestep - self.out_length:
+            raise ValueError("Queried length exceeded limit.\n"
+                             "Maximum length: {}"
+                             .format(self.n_timestep-self.out_length))
+        return (np.array([self.X[i:i+self.out_length, :self.out_size] 
+                    for i in range(length)]),
+                self.Y[self.out_length:self.out_length+length, self.out_size])
+
+
 class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
 
     def __init__(self, data, batch_size, batches_per_epoch, 

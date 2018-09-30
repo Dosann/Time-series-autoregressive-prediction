@@ -16,25 +16,40 @@ class DeterministicAutoregressivePredictor(Predictor):
         super(DeterministicAutoregressivePredictor, self).__init__()
     
     def do_predict(self, solver, X):
+        # X: (batch_size, input_length, input_size)
+        # return:
+        #   predict: (batch_size, input_size)
         predict = solver.predict(X)
         predict = predict.reshape((predict.size, ))
         return predict
+    
+    def singlstep_predict(self, solver, X):
+        # X: (length, input_length, input_size):
+        # return:
+        #   pred_history: (input_length+length, input_size)
+        pred = self.do_predict(solver, X)
+        pred_history = np.vstack([
+            X[0], pred])
+        return pred_history
 
-    def multistep_predict(self, solver, X, n_steps):
-        print("X.shape: {}".format(X.shape))
-        n_samples, input_length, input_size = X.shape
+    def multistep_predict(self, solver, X, n_steps, verbose=0):
+        # X: (1, input_length, input_size)
+        # return : 
+        #   pred_history: (input_length+n_steps, input_size)
+        _, input_length, input_size = X.shape
         if input_length != solver.input_length:
             print("input length of X ({}) equals not the model input length "
                   "({}). The newest data has been used for prediction."
                   .format(input_length, solver.input_length))
             input_length = solver.input_length
             X = X[:,-input_length:,:]
-        X_hist = np.zeros([n_samples, input_length+n_steps, input_size])
-        X_hist[:,:input_length,:] = X
+        pred_history = np.zeros([input_length+n_steps, input_size])
+        pred_history[:input_length,:] = X
         for i in range(n_steps):
-            print('progress: %d / %d'%(i+1, n_steps))
-            X_hist[:,i+input_length,:] = self.do_predict(solver, X_hist[:,i:i+input_length,:])
-        return X_hist[:,input_length:,:]
+            if verbose != 0:
+                print('progress: %d / %d'%(i+1, n_steps))
+            pred_history[i+input_length,:] = self.do_predict(solver, pred_history[np.newaxis, i:i+input_length,:])[0]
+        return pred_history
     
     def _save_others(self, path):
         pass
@@ -91,7 +106,7 @@ class DetermDiscreteAGPredictor(Predictor):
         # X : (1, input_length, input_size)
         # return : 
         #   prob_history : (length, input_size, n_classes)
-        #   pred_history : (input_length+length, input_size)
+        #   pred_history : (input_length+n_steps, input_size)
         _ , input_length, input_size = X.shape
         # probabilities for all future steps
         prob_history = np.zeros((n_steps, input_size, self.n_classes),
