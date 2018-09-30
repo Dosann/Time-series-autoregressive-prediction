@@ -338,7 +338,6 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    print(true_value.shape, pred_value.shape, prob.shape)
     pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['valid.1.multistep.mcmc.true.value'] = true_value
     RMSE['valid.1.multistep.mcmc.true.class'] = true_class
@@ -346,7 +345,6 @@ def stage_callback(model):
     RMSE['valid.1.multistep.mcmc.pred.class'] = pred_class
     RMSE['valid.1.multistep.mcmc.rmse'] = rmse(true_value, pred_value[-true_value.shape[0]:,:])
     # draw figure
-    print(true_value.shape, pred_value.shape, prob.shape)
     f1 = draw(true_value, pred_value)
     f2 = draw(true_class, pred_class, prob)
     f1.savefig(params['model_path'] + 
@@ -368,17 +366,18 @@ def stage_callback(model):
     print("{} | {:>.10} | {:>.10} | {:>.10}".format(
         'multistep.determ'.ljust(20), 
         str(RMSE['train.multistep.determ.rmse']).ljust(15),
-        str(RMSE['valid.1.multistep.determ.determ.rmse']).ljust(15),
-        str(RMSE['valid.2.multistep.determ.determ.rmse']).ljust(15)))
+        str(RMSE['valid.1.multistep.determ.rmse']).ljust(15),
+        str(RMSE['valid.2.multistep.determ.rmse']).ljust(15)))
     print("{} | {:>.10} | {:>.10} | {:>.10}".format(
         'multistep.mcmc'.ljust(20), 
         str(RMSE['train.multistep.mcmc.rmse']).ljust(15),
-        str(RMSE['valid.1.multistep.mcmc.determ.rmse']).ljust(15),
-        str(RMSE['valid.2.multistep.mcmc.determ.rmse']).ljust(15)))
+        str(RMSE['valid.1.multistep.mcmc.rmse']).ljust(15),
+        str(RMSE['valid.2.multistep.mcmc.rmse']).ljust(15)))
     print("#"*80 + '\n')
 
     hist.append(RMSE)
     open(params['hist_path'], 'wb').write(pkl.dumps(hist))
+
 
 # def draw_prediction(test_X, test_Y, prob, pred, test_length, n_figs, save_path):
 #     test_length_r = min(test_X.shape[0], test_length)

@@ -368,13 +368,13 @@ def stage_callback(model):
     print("{} | {:>.10} | {:>.10} | {:>.10}".format(
         'multistep.determ'.ljust(20), 
         str(RMSE['train.multistep.determ.rmse']).ljust(15),
-        str(RMSE['valid.1.multistep.determ.determ.rmse']).ljust(15),
-        str(RMSE['valid.2.multistep.determ.determ.rmse']).ljust(15)))
+        str(RMSE['valid.1.multistep.determ.rmse']).ljust(15),
+        str(RMSE['valid.2.multistep.determ.rmse']).ljust(15)))
     print("{} | {:>.10} | {:>.10} | {:>.10}".format(
         'multistep.mcmc'.ljust(20), 
         str(RMSE['train.multistep.mcmc.rmse']).ljust(15),
-        str(RMSE['valid.1.multistep.mcmc.determ.rmse']).ljust(15),
-        str(RMSE['valid.2.multistep.mcmc.determ.rmse']).ljust(15)))
+        str(RMSE['valid.1.multistep.mcmc.rmse']).ljust(15),
+        str(RMSE['valid.2.multistep.mcmc.rmse']).ljust(15)))
     print("#"*80 + '\n')
 
     hist.append(RMSE)
