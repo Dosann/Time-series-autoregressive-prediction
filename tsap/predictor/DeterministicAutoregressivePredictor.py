@@ -64,7 +64,7 @@ class DetermDiscreteAGPredictor(Predictor):
         pred = discrete2continue(prob.argmax(axis=-1), self.intervals)
         return prob, pred
     
-    def singlstep_predict(self, solver, X):
+    def singlstep_predict(self, solver, X, verbose=0):
         # X : (length, input_length, input_size)
         # return : 
         #   prob_history : (length, input_size, n_classes)
@@ -80,13 +80,14 @@ class DetermDiscreteAGPredictor(Predictor):
         n_periods = min(n_steps, 10)
         deci_progress = int(n_steps / n_periods)
         for i in range(n_steps):
-            if (i+1) % deci_progress == 0:
-                print("Current progress: {} / {}".format(i+1, n_steps))
+            if verbose != 0:
+                if (i+1) % deci_progress == 0:
+                    print("Current progress: {} / {}".format(i+1, n_steps))
             prob_history[i], pred_history[input_length+i] = self.do_predict(
                 solver, X[i])
         return prob_history, pred_history
     
-    def multistep_predict(self, solver, X, n_steps):
+    def multistep_predict(self, solver, X, n_steps, verbose=0):
         # X : (1, input_length, input_size)
         # return : 
         #   prob_history : (length, input_size, n_classes)
@@ -102,8 +103,9 @@ class DetermDiscreteAGPredictor(Predictor):
         n_periods = min(n_steps, 10)
         deci_progress = int(n_steps / n_periods)
         for i in range(n_steps):
-            if (i+1) % deci_progress == 0:
-                print("Current progress: {} / {}".format(i+1, n_steps))
+            if verbose != 0:
+                if (i+1) % deci_progress == 0:
+                    print("Current progress: {} / {}".format(i+1, n_steps))
             prob_history[i], pred_history[input_length+i] = self.do_predict(
                 solver, pred_history[i:i+input_length])
         return prob_history, pred_history
