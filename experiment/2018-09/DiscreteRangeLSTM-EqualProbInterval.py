@@ -474,8 +474,8 @@ if __name__ == '__main__':
                     params['input_length'], params['input_size'],
                     params['n_classes'], intervals)
 
-    predictor_d = pp.MCMCPredictor(params, intervals)
-    predictor_m = dap.DetermDiscreteAGPredictor(params, intervals)
+    predictor_m = pp.MCMCPredictor(params, intervals)
+    predictor_d = dap.DetermDiscreteAGPredictor(params, intervals)
     
     if not params['test']: # train phase
         solver = eval(params['Solver'])(params)
