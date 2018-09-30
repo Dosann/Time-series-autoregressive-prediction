@@ -296,7 +296,7 @@ def stage_callback(model):
     f2.savefig(params['model_path'] + 
         '.multistep_pred.determ.epoch{:0>4d}.hm.jpg'.format(model.current_epoch))
 
-    def montecarlo_pred_summary(prob, pred_value, true_class, intervals):
+    def montecarlo_pred_summary(prob, pred_value, intervals):
         prob = prob.mean(axis=0)
         if params['montecarlo_pred_mode'] == 'modal':
             pred_class = continue2discrete(pred_value, intervals)
@@ -304,7 +304,7 @@ def stage_callback(model):
             pred_class = mode(pred_class, axis=0)[0].reshape((l,input_size))
         elif params['montecarlo_pred_mode'] == 'mean':
             pred_class = np.vstack(
-                [true_class[:-prob.shape[0]],
+                [pred_value[0,:-prob.shape[0],:],
                 prob.argmax(axis=-1)])
         pred_value = discrete2continue(pred_class, intervals)
         return pred_class, pred_value, prob
@@ -316,8 +316,7 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    pred_class, pred_value, prob = montecarlo_pred_summary(
-        prob, pred_value, true_class, intervals)
+    pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['train.multistep.mcmc.true.value'] = true_value
     RMSE['train.multistep.mcmc.true.class'] = true_class
     RMSE['train.multistep.mcmc.pred.value'] = pred_value
@@ -328,8 +327,7 @@ def stage_callback(model):
     true_class = Y.argmax(axis=-1)
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
-    pred_class, pred_value, prob = montecarlo_pred_summary(
-        prob, pred_value, true_class, intervals)
+    pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['valid.2.multistep.mcmc.true.value'] = true_value
     RMSE['valid.2.multistep.mcmc.true.class'] = true_class
     RMSE['valid.2.multistep.mcmc.pred.value'] = pred_value
@@ -341,8 +339,7 @@ def stage_callback(model):
     true_value = data_util.discrete2continue(true_class, intervals)
     prob, pred_value = model.multistep_predict(X, params['test_length'])
     print(true_value.shape, pred_value.shape, prob.shape)
-    pred_class, pred_value, prob = montecarlo_pred_summary(
-        prob, pred_value, true_class, intervals)
+    pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
     RMSE['valid.1.multistep.mcmc.true.value'] = true_value
     RMSE['valid.1.multistep.mcmc.true.class'] = true_class
     RMSE['valid.1.multistep.mcmc.pred.value'] = pred_value
