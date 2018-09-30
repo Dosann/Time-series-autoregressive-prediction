@@ -124,11 +124,11 @@ def ParseDiscreteLstmParams():
         if 'valid_path1' not in params:
             raise ValueError("parameter '--valid_path1' is not specified.")
         params['valid_path1'] = RemoveQuotes(params['valid_path1'])
-        print("""valid1 data path : {}""".format(params['valid1_path']))
+        print("""valid1 data path : {}""".format(params['valid_path2']))
         if 'valid_path2' not in params:
             raise ValueError("parameter '--valid_path2' is not specified.")
         params['valid_path2'] = RemoveQuotes(params['valid_path2'])
-        print("""valid2 data path : {}""".format(params['valid2_path']))
+        print("""valid2 data path : {}""".format(params['valid_path2']))
         if 'stages' not in params:
             raise ValueError("parameter '--stages' is not specified.")
         if 'epochs' not in params:
