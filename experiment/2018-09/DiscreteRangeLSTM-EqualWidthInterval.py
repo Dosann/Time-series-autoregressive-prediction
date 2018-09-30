@@ -432,7 +432,7 @@ if __name__ == '__main__':
             raise ValueError("Only data generator supported here!\n"
                              "Try add argument '--fit_generator'")
         else:
-            train_with_generator(model, train_feeder, valid_feeder1 params)
+            train_with_generator(model, train_feeder, valid_feeder1, params)
     else: # test phase
         test_feeder = data_util.SequentialDiscreteRCDF(
                     load_data(params['test_path']), 
