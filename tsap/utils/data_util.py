@@ -210,8 +210,8 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
 
     def __init__(self, data, batch_size, batches_per_epoch, 
                  out_length, out_size, n_classes,
-                 interv_dividing_method = equalprob_interval_dividing,
-                 intervals=None):
+                 intervals=None,
+                 interv_dividing_method = equalprob_interval_dividing):
         super(SequentialDiscreteRCDF, self).__init__(
             data, batch_size, batches_per_epoch, 
             out_length, out_size)

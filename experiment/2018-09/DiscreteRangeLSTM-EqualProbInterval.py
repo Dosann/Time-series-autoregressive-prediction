@@ -406,8 +406,8 @@ if __name__ == '__main__':
                     params['batch_size'], params['batches_per_epoch'], 
                     params['input_length'], params['input_size'],
                     params['n_classes'], 
-                    interv_dividing_method = equalprob_interval_dividing, 
-                    intervals = None)
+                    intervals = None, 
+                    interv_dividing_method = equalprob_interval_dividing)
         intervals = train_feeder.get_intervals()
         valid_feeder1 = data_util.SequentialDiscreteRCDF(
                     load_data(params['valid_path1']), 
@@ -432,7 +432,7 @@ if __name__ == '__main__':
             raise ValueError("Only data generator supported here!\n"
                              "Try add argument '--fit_generator'")
         else:
-            train_with_generator(model, train_feeder, valid_feeder, params)
+            train_with_generator(model, train_feeder, valid_feeder1, params)
     else: # test phase
         test_feeder = data_util.SequentialDiscreteRCDF(
                     load_data(params['test_path']), 
