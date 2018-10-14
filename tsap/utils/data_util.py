@@ -238,13 +238,38 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
                  out_length, out_size, n_classes,
                  intervals=None,
                  interv_dividing_method = equalprob_interval_dividing):
-        super(SequentialDiscreteRCDF, self).__init__(
-            data, batch_size, batches_per_epoch, 
-            out_length, out_size)
+        print("out_size is {}".format(out_size))
+        self.data = data
+        self.batch_size = batch_size
+        self.batches_per_epoch = batches_per_epoch
+        self.out_length = out_length
+        self.out_size = out_size
         self.n_classes = n_classes
+        self._check_data()
+        self._reset()
         self._set_intervals(intervals, interv_dividing_method)
         self._data_preparation()
     
+    def _check_data(self):
+        if not isinstance(self.data, np.ndarray):
+            raise ValueError("Input data should be of 'np.ndarray' "
+                             "but is '{}'".format(type(self.data)))
+        if self.data.ndim == 1:
+            self.data = self.data.reshape([-1,1])
+        elif self.data.ndim != 2:
+            raise ValueError("Input data shape should be 1 or 2, "
+                             "but is {}".format(self.data.shape))
+
+        self.n_timestep, self.n_chan = self.data.shape
+        if self.n_chan < self.out_size:
+            raise ValueError("Data size (# of channel) is smaller "
+                             "than predefined 'out_size'")
+        self._from = 0
+        self._to   = self.n_timestep - self.out_length - 1
+
+    def _reset(self):
+        self.batch = 0
+
     def _set_intervals(self, intervals, interv_dividing_method):
         if intervals is None:
             self.intervals = interv_dividing_method(
@@ -258,7 +283,7 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
     def _data_preparation(self):
         # self.X : (n_timestep, n_chan)
         self.X = self.data
-        # self.Y : (n_ti1mestep, n_chan)
+        # self.Y : (n_timestep, n_chan)
         self.Y = continue2discrete(self.data, self.intervals)
         self._onehotecd_preparation()
         # self.Y : (n_chan, n_timestep, n_classes)
@@ -286,7 +311,7 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
         self.batch += 1
         return X, Y
     
-    def get_multistep_test_data(self, length):
+    def get_multistep_test_data(self, length, random=False):
         # output:
         #   X: 1 sample (1, out_length, out_size)
         #   Y: 3-d array (length, out_size, n_classes)
@@ -295,11 +320,12 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
             raise ValueError("Queried length exceeded limit.\n"
                              "Maximum length: {}"
                              .format(self.n_timestep-self.out_length))
-        return (self.X[np.newaxis, :self.out_length, :self.out_size], 
+        X, Y = (self.X[np.newaxis, :self.out_length, :self.out_size], 
                 self.Y[:self.out_size, self.out_length:self.out_length+length, :]
                     .transpose(1,0,2))
+        return X, Y
 
-    def get_singlstep_test_data(self, length):
+    def get_singlstep_test_data(self, length, random=False):
         # output:
         #   X: 'length' samples (length, out_length, out_size)
         #   Y: 3-d array (length, out_size, n_classes)
