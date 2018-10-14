@@ -61,7 +61,7 @@ train_feeder = data_util.SequentialDiscreteRCDF(
     intervals = None, 
     interv_dividing_method = equalwidth_interval_dividing)
 
-data = train_feeder.get_multistep_test_data(length=1)
+X, Y = train_feeder.get_multistep_test_data(length=1)
 PRED_LENGTH = 100
 PRED_EPOCHS = 10
 preds = []
