@@ -121,7 +121,7 @@ def discrete2continue(data, intervals, random=False):
     if random:
         MAP = {i:(intervals[i], intervals[i+1]) for i in range(n_intervals-1)}
         ctn_interval = np.array(np.vectorize(MAP.get)(data))
-        rand = np.random.uniform(0, 1e5, size=(ctn_interval.shape[1]))
+        rand = np.random.uniform(0, 1e5, size=ctn_interval[0].shape)
         ctn_data = rand % (ctn_interval[1]-ctn_interval[0]) + (ctn_interval[0])
     else:
         MAP = {i:(intervals[i]+intervals[i+1])/2 for i in range(n_intervals-1)}
