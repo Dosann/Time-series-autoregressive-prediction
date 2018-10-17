@@ -221,7 +221,7 @@ class DRSCallback(Callback):
         RMSE = np.square(true - pred).mean()**0.5
         return RMSE
     
-    def on_train_begin(self, model, logs=None):
+    def on_fit_begin(self, model, logs=None):
         self.SaveModel(model=model)
     
     def on_epoch_begin(self, batch, logs=None):

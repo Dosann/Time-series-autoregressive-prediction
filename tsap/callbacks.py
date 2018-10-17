@@ -48,6 +48,12 @@ class Callback(object):
     def on_stage_end(self, model, logs=None):
         pass
 
+    def on_fit_begin(self, model, logs=None):
+        pass
+    
+    def on_fit_end(self, model, logs=None):
+        pass
+
     def on_epoch_begin(self, epoch, logs=None):
         pass
 

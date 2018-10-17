@@ -125,7 +125,7 @@ class SequentialModel(Model):
         self._check_solver()
         self._check_parameters()
         # fit
-        callbacks.on_train_begin(model=self)
+        callbacks.on_fit_begin(model=self)
         while not self._is_end():
             self._print_epoch()
             callbacks.on_stage_begin(model=self)
@@ -138,7 +138,7 @@ class SequentialModel(Model):
             self.stages += -1
             callbacks.on_stage_end(model=self)
         self._print_epoch()
-        callbacks.on_train_end(model=self)
+        callbacks.on_fit_end(model=self)
     
     def _pickle_self(self):
         _solver = self.solver
