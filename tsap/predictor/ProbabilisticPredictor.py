@@ -172,6 +172,7 @@ class MCMCPredictorStateful(Predictor):
         n_periods = min(length, 6)
         milestones = np.linspace(0, lead_length+length, n_periods)
         m = 1
+        print("pred_history: ", pred_history.shape)
         for i in range(lead_length+length):
             if verbose != 0:
                 if i+1 >= milestones[m]:
