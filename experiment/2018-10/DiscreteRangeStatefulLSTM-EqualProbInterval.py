@@ -525,9 +525,9 @@ if __name__ == '__main__':
                     params['n_classes'], 
                     intervals = None, 
                     interv_dividing_method = equalprob_interval_dividing)
-        params['epochs'] = train_feeder.reset_cycle_length
-        print("'epochs' has been set to {}, since the model is stateful."
-                .format(params['epochs']))
+        params['batches_per_epoch'] = train_feeder.reset_cycle_length
+        print("'batches_per_epoch' has been set to {}, since the model is stateful."
+                .format(params['batches_per_epoch']))
         intervals = train_feeder.get_intervals()
         valid_feeder1 = data_util.SeqDiscrtzdRandomChanlStatefulDF(
                     load_data(params['valid_path1']), 
