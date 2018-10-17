@@ -446,7 +446,6 @@ class SeqDiscrtzdRandomChanlStatefulDF:
         #   X: lead+1 samples (lead_length+1, 1, out_size)
         #   Y: 3-d array (length, out_size, n_classes)
         #      starting from 'lead_length+1'
-        print("lead_length+length: ", lead_length+length)
         if lead_length + length > self.n_timestep - self.out_length:
             raise ValueError("Queried total length exceeded limit.\n"
                              "Maximum total length: {}"
@@ -456,8 +455,6 @@ class SeqDiscrtzdRandomChanlStatefulDF:
         X = np.array(X)
         Y = self.Y[:self.out_size, lead_length+1:lead_length+1+length, :] \
                     .transpose(1,0,2)
-        print("X.shape : ", X.shape)
-        print("Y.shape : ", Y.shape)
         return X, Y
 
     def get_singlstep_test_data(self, length, lead_length=100, random=False):
