@@ -555,6 +555,7 @@ if __name__ == '__main__':
         params_test_mcmc['batch_size'] = params['n_samples']
         params_test_mcmc['input_length'] = 1
         solver_test_mcmc = eval(params['Solver'])(params_test_mcmc)
+        print("input shape of solver_test_mcmc: ", solver_test_mcmc._solver.input_shape)
         
         model = sequential.SequentialModel(solver=solver_train, predictor=predictor_d)
         if not params['fit_generator']:

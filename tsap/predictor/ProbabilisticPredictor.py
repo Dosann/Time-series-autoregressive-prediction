@@ -173,6 +173,7 @@ class MCMCPredictorStateful(Predictor):
         milestones = np.linspace(0, lead_length+length, n_periods)
         m = 1
         print("pred_history: ", pred_history.shape)
+        print("input shape of solver: ", solver._solver.input_shape)
         for i in range(lead_length+length):
             if verbose != 0:
                 if i+1 >= milestones[m]:

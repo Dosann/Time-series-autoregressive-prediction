@@ -101,7 +101,7 @@ class LstmSolverKeras(Solver):
     def predict(self, X):
         assert(isinstance(X, np.ndarray))
         self._check_input_X(X)
-        print("X.shape: ", X.shape)
+        #print("X.shape: ", X.shape)
         return self._solver.predict(X)
     
     def _save_others(self, path):
