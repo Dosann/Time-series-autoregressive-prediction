@@ -194,8 +194,12 @@ class MCMCPredictorStateful(Predictor):
                     pred[s] = [np.random.multinomial(1,chan/1.001) \
                         .argmax() for chan in samp]
                 pred = np.array(pred) # (n_samples, input_size)
-                pred_history[:,i+1,:] = discrete2continue(pred, 
+                print("pred's shape: ", pred.shape)
+                pred = discrete2continue(pred, 
                                                 self.intervals, random=True)
+                print("pred's shape after continualize: ", pred.shape)
+                                    
+                pred_history[:,i+1,:] = 
         return prob_history, pred_history
     
     def _save_others(self, path):
