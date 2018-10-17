@@ -197,7 +197,7 @@ class DiscreteLstm1LayerStateful(LstmSolverKeras):
         inputs = Input(batch_shape=(self.batch_size,
                                     self.input_length,
                                     self.input_size))
-        lstm1 = LSTM(params['hidden_units'], return_sequences=False)(inputs)
+        lstm1 = LSTM(params['hidden_units'], return_sequences=False, stateful=True)(inputs)
         predicts = []
         for i in range(self.input_size):
             predicts.append(Dense(self.n_classes, activation='softmax',
