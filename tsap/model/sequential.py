@@ -198,7 +198,7 @@ class SequentialModel(Model):
     def singlstep_predict(self, X, **kwargs):
         return self.predictor.singlstep_predict(self.solver, X, **kwargs)
 
-    def multistep_predict(self, X, length, **kwargs):
+    def multistep_predict(self, X, **kwargs):
         return self.predictor.multistep_predict(self.solver, X, **kwargs)
     
     def multiseg_multistep_predict(self, X, n_segs, length, **kwargs):
