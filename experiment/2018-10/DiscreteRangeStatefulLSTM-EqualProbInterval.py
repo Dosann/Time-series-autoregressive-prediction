@@ -169,7 +169,7 @@ def train_with_generator(model, train_generator, valid_generator, params):
                                stages = params['stages'], epochs = params['epochs'],
                                batches_per_epoch = params['batches_per_epoch'],
                                end_time = params['end_time'],
-                               callback=drs_callbacks)
+                               callbacks=drs_callbacks)
 
 def test(model, test_X, test_length):
     print(test_X)
