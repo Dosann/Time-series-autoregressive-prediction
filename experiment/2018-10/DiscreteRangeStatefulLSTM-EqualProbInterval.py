@@ -350,6 +350,7 @@ class DRSCallback(Callback):
             return pred_class, pred_value, prob
 
         if params['montecarlo']:
+            model._set_solver(solver_test_mcmc)
             # multistep : MCMC predictor
             model._set_predictor(predictor_m)
             # multistep test for trainset
@@ -357,7 +358,7 @@ class DRSCallback(Callback):
             true_class = Y.argmax(axis=-1)
             true_value = data_util.discrete2continue(true_class, intervals)
             prob, pred_value = model.multistep_predict(X, length=params['test_length'], lead_length=params['lead_length'])
-            solver_test._solver.reset_states()
+            solver_test_mcmc._solver.reset_states()
             pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
             RMSE['train.multistep.mcmc.true.value'] = true_value
             RMSE['train.multistep.mcmc.true.class'] = true_class
@@ -369,7 +370,7 @@ class DRSCallback(Callback):
             true_class = Y.argmax(axis=-1)
             true_value = data_util.discrete2continue(true_class, intervals)
             prob, pred_value = model.multistep_predict(X, length=params['test_length'], lead_length=params['lead_length'])
-            solver_test._solver.reset_states()
+            solver_test_mcmc._solver.reset_states()
             pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
             RMSE['valid.2.multistep.mcmc.true.value'] = true_value
             RMSE['valid.2.multistep.mcmc.true.class'] = true_class
@@ -381,7 +382,7 @@ class DRSCallback(Callback):
             true_class = Y.argmax(axis=-1)
             true_value = data_util.discrete2continue(true_class, intervals)
             prob, pred_value = model.multistep_predict(X, length=params['test_length'], lead_length=params['lead_length'])
-            solver_test._solver.reset_states()
+            solver_test_mcmc._solver.reset_states()
             pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
             RMSE['valid.1.multistep.mcmc.true.value'] = true_value
             RMSE['valid.1.multistep.mcmc.true.class'] = true_class
@@ -549,6 +550,10 @@ if __name__ == '__main__':
         params_test['batch_size'] = 1
         params_test['input_length'] = 1
         solver_test = eval(params['Solver'])(params_test)
+        params_test_mcmc = params
+        params_test_mcmc['batch_size'] = params['n_samples']
+        params_test_mcmc['input_length'] = 1
+        solver_test_mcmc = eval(params['Solver'])(params_test_mcmc)
         
         model = sequential.SequentialModel(solver=solver_train, predictor=predictor_d)
         if not params['fit_generator']:
