@@ -98,11 +98,11 @@ class LstmSolverKeras(Solver):
                                        steps_per_epoch = batches_per_epoch,
                                        callbacks=(callbacks is None) and None or [callbacks])
     
-    def predict(self, X):
+    def predict(self, X, **kwargs):
         assert(isinstance(X, np.ndarray))
         self._check_input_X(X)
         #print("X.shape: ", X.shape)
-        return self._solver.predict(X)
+        return self._solver.predict(X, **kwargs)
     
     def _save_others(self, path):
         self._solver.save(path + '.keras')

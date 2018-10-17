@@ -118,7 +118,7 @@ class MCMCPredictorStateful(Predictor):
         #   pred : (n_samples, input_size)
         #print("before solver.predict(X). solver's input_shape: ", solver._solver.input_shape)
         #print("shape of X: ", X.shape)
-        prob = solver.predict(X)
+        prob = solver.predict(X, batch_size=self.n_samples)
         #print("after solver.predict(X)")
         if type(prob) is list:
             prob = [p[:,np.newaxis,...] for p in prob]
@@ -175,17 +175,14 @@ class MCMCPredictorStateful(Predictor):
         n_periods = min(length, 6)
         milestones = np.linspace(0, lead_length+length, n_periods)
         m = 1
-        print("pred_history: ", pred_history.shape)
         for i in range(lead_length+length):
             if verbose != 0:
                 if i+1 >= milestones[m]:
                     print("Current progress: {} / {}".format(i+1, lead_length+length))
                     m += 1
             # prob : (n_samples, input_size, n_classes)
-            print("input shape of solver: ", solver._solver.input_shape)
             prob, _ = self.do_predict(
                 solver, pred_history[:,i:i+1,:])
-            print("finished do_predict")
             if i >= lead_length:
                 prob_history[:,i-lead_length,...] = prob
                 # sample from class prob
@@ -195,11 +192,8 @@ class MCMCPredictorStateful(Predictor):
                         .argmax() for chan in samp]
                 pred = np.array(pred) # (n_samples, input_size)
                 print("pred's shape: ", pred.shape)
-                pred = discrete2continue(pred, 
+                pred_history[:,i+1,:] = discrete2continue(pred, 
                                                 self.intervals, random=True)
-                print("pred's shape after continualize: ", pred.shape)
-                                    
-                pred_history[:,i+1,:] = pred
         return prob_history, pred_history
     
     def _save_others(self, path):

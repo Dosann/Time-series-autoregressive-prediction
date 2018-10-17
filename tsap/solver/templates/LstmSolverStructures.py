@@ -8,7 +8,7 @@
 from ..LstmSolver import LstmSolverKeras
 import keras
 import keras.backend as K
-from keras.models import Model
+from keras.models import Model, Sequential
 from keras.layers import Input, LSTM, Dense, Activation, TimeDistributed, AveragePooling1D, Average, Reshape, Flatten
 from keras import regularizers
 from keras.utils import plot_model
@@ -212,6 +212,7 @@ class DiscreteLstm1LayerStateful(LstmSolverKeras):
     
     def _set_intervals(self, intervals):
         self.intervals = intervals
+
 
 class DiscreteLstm3LayerStateful(LstmSolverKeras):
 
