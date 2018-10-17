@@ -50,6 +50,8 @@ def ParseDiscreteLstmParams():
     parser.add_argument('n_classes', type=int, 
                         help = 'num of intervals the all value '
                                'the whole range is divided into')
+    parser.add_argument('--lead_length', type=int, default=100,
+                        help='lead length for stateful model')
     parser.add_argument('--train_path', type = str,
                         help = 'path of train data (raw sequential numpy array)')
     parser.add_argument('--valid_path1', type = str,
@@ -244,10 +246,10 @@ class DRSCallback(Callback):
         # singlstep : deterministic predictor
         model._set_predictor(predictor_d)
         # singlstep test for trainset
-        X, Y = train_feeder.get_singlstep_test_data(params['test_length'])
+        X, Y = train_feeder.get_singlstep_test_data(params['test_length'], lead_length=params['lead_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.singlstep_predict(X)
+        prob, pred_value = model.singlstep_predict(X, lead_length=params['lead_length'])
         solver_test._solver.reset_states()
         pred_class = data_util.continue2discrete(pred_value, intervals)
         RMSE['train.singlstep.true.value'] = true_value
@@ -256,10 +258,10 @@ class DRSCallback(Callback):
         RMSE['train.singlstep.pred.class'] = pred_class
         RMSE['train.singlstep.rmse'] = self.rmse(true_value, pred_value[-true_value.shape[0]:,:])
         # singlestep test for validset.2
-        X, Y = valid_feeder2.get_singlstep_test_data(params['test_length'])
+        X, Y = valid_feeder2.get_singlstep_test_data(params['test_length'], lead_length=params['lead_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.singlstep_predict(X)
+        prob, pred_value = model.singlstep_predict(X, lead_length=params['lead_length'])
         solver_test._solver.reset_states()
         pred_class = data_util.continue2discrete(pred_value, intervals)
         RMSE['valid.2.singlstep.true.value'] = true_value
@@ -268,10 +270,10 @@ class DRSCallback(Callback):
         RMSE['valid.2.singlstep.pred.class'] = pred_class
         RMSE['valid.2.singlstep.rmse'] = self.rmse(true_value, pred_value[-true_value.shape[0]:,:])
         # singlstep test for validset.1
-        X, Y = valid_feeder1.get_singlstep_test_data(params['test_length'])
+        X, Y = valid_feeder1.get_singlstep_test_data(params['test_length'], lead_length=params['lead_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.singlstep_predict(X)
+        prob, pred_value = model.singlstep_predict(X, lead_length=params['lead_length'])
         solver_test._solver.reset_states()
         pred_class = data_util.continue2discrete(pred_value, intervals)
         RMSE['valid.1.singlstep.true.value'] = true_value
@@ -291,10 +293,10 @@ class DRSCallback(Callback):
         # multistep : deterministic predictor
         model._set_predictor(predictor_d)
         # multistep test for trainset
-        X, Y = train_feeder.get_multistep_test_data(params['test_length'])
+        X, Y = train_feeder.get_multistep_test_data(params['test_length'], lead_length=params['lead_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.multistep_predict(X, params['test_length'])
+        prob, pred_value = model.multistep_predict(X, params['test_length'], lead_length=params['lead_length'])
         solver_test._solver.reset_states()
         pred_class = data_util.continue2discrete(pred_value, intervals)
         RMSE['train.multistep.determ.true.value'] = true_value
@@ -303,10 +305,10 @@ class DRSCallback(Callback):
         RMSE['train.multistep.determ.pred.class'] = pred_class
         RMSE['train.multistep.determ.rmse'] = self.rmse(true_value, pred_value[-true_value.shape[0]:,:])
         # multistep test for validset.2
-        X, Y = valid_feeder2.get_multistep_test_data(params['test_length'])
+        X, Y = valid_feeder2.get_multistep_test_data(params['test_length'], lead_length=params['lead_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.multistep_predict(X, params['test_length'])
+        prob, pred_value = model.multistep_predict(X, params['test_length'], lead_length=params['lead_length'])
         solver_test._solver.reset_states()
         pred_class = data_util.continue2discrete(pred_value, intervals)
         RMSE['valid.2.multistep.determ.true.value'] = true_value
@@ -315,10 +317,10 @@ class DRSCallback(Callback):
         RMSE['valid.2.multistep.determ.pred.class'] = pred_class
         RMSE['valid.2.multistep.determ.rmse'] = self.rmse(true_value, pred_value[-true_value.shape[0]:,:])
         # multistep test for validset.1
-        X, Y = valid_feeder1.get_multistep_test_data(params['test_length'])
+        X, Y = valid_feeder1.get_multistep_test_data(params['test_length'], lead_length=params['lead_length'])
         true_class = Y.argmax(axis=-1)
         true_value = data_util.discrete2continue(true_class, intervals)
-        prob, pred_value = model.multistep_predict(X, params['test_length'])
+        prob, pred_value = model.multistep_predict(X, params['test_length'], lead_length=params['lead_length'])
         solver_test._solver.reset_states()
         pred_class = data_util.continue2discrete(pred_value, intervals)
         RMSE['valid.1.multistep.determ.true.value'] = true_value
@@ -351,10 +353,10 @@ class DRSCallback(Callback):
             # multistep : MCMC predictor
             model._set_predictor(predictor_m)
             # multistep test for trainset
-            X, Y = train_feeder.get_multistep_test_data(params['test_length'])
+            X, Y = train_feeder.get_multistep_test_data(params['test_length'], lead_length=params['lead_length'])
             true_class = Y.argmax(axis=-1)
             true_value = data_util.discrete2continue(true_class, intervals)
-            prob, pred_value = model.multistep_predict(X, params['test_length'])
+            prob, pred_value = model.multistep_predict(X, params['test_length'], lead_length=params['lead_length'])
             solver_test._solver.reset_states()
             pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
             RMSE['train.multistep.mcmc.true.value'] = true_value
@@ -363,10 +365,10 @@ class DRSCallback(Callback):
             RMSE['train.multistep.mcmc.pred.class'] = pred_class
             RMSE['train.multistep.mcmc.rmse'] = self.rmse(true_value, pred_value[-true_value.shape[0]:,:])
             # multistep test for validset.2
-            X, Y = valid_feeder2.get_multistep_test_data(params['test_length'])
+            X, Y = valid_feeder2.get_multistep_test_data(params['test_length'], lead_length=params['lead_length'])
             true_class = Y.argmax(axis=-1)
             true_value = data_util.discrete2continue(true_class, intervals)
-            prob, pred_value = model.multistep_predict(X, params['test_length'])
+            prob, pred_value = model.multistep_predict(X, params['test_length'], lead_length=params['lead_length'])
             solver_test._solver.reset_states()
             pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
             RMSE['valid.2.multistep.mcmc.true.value'] = true_value
@@ -375,10 +377,10 @@ class DRSCallback(Callback):
             RMSE['valid.2.multistep.mcmc.pred.class'] = pred_class
             RMSE['valid.2.multistep.mcmc.rmse'] = self.rmse(true_value, pred_value[-true_value.shape[0]:,:])
             # multistep test for validset.1
-            X, Y = valid_feeder1.get_multistep_test_data(params['test_length'])
+            X, Y = valid_feeder1.get_multistep_test_data(params['test_length'], lead_length=params['lead_length'])
             true_class = Y.argmax(axis=-1)
             true_value = data_util.discrete2continue(true_class, intervals)
-            prob, pred_value = model.multistep_predict(X, params['test_length'])
+            prob, pred_value = model.multistep_predict(X, params['test_length'], lead_length=params['lead_length'])
             solver_test._solver.reset_states()
             pred_class, pred_value, prob = montecarlo_pred_summary(prob, pred_value, intervals)
             RMSE['valid.1.multistep.mcmc.true.value'] = true_value
