@@ -173,15 +173,16 @@ class MCMCPredictorStateful(Predictor):
         milestones = np.linspace(0, lead_length+length, n_periods)
         m = 1
         print("pred_history: ", pred_history.shape)
-        print("input shape of solver: ", solver._solver.input_shape)
         for i in range(lead_length+length):
             if verbose != 0:
                 if i+1 >= milestones[m]:
                     print("Current progress: {} / {}".format(i+1, lead_length+length))
                     m += 1
             # prob : (n_samples, input_size, n_classes)
+            print("input shape of solver: ", solver._solver.input_shape)
             prob, _ = self.do_predict(
                 solver, pred_history[:,i:i+1,:])
+            print("finished do_predict")
             if i >= lead_length:
                 prob_history[:,i-lead_length,...] = prob
                 # sample from class prob
