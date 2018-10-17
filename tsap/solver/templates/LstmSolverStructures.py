@@ -181,3 +181,67 @@ class DiscreteLstm3Layer(LstmSolverKeras):
     
     def _set_intervals(self, intervals):
         self.intervals = intervals
+
+
+class DiscreteLstm1LayerStateful(LstmSolverKeras):
+
+    def __init__(self, params):
+        super(DiscreteLstm1LayerStateful, self).__init__(params)
+        self._solver_construction(params)
+    
+    def _solver_construction(self, params):
+        self.batch_size = params['batch_size']
+        self.input_length = params['input_length']
+        self.input_size = params['input_size']
+        self.n_classes = params['n_classes']
+        inputs = Input(batch_shape=(self.batch_size,
+                                    self.input_length,
+                                    self.input_size))
+        lstm1 = LSTM(params['hidden_units'], return_sequences=False)(inputs)
+        predicts = []
+        for i in range(self.input_size):
+            predicts.append(Dense(self.n_classes, activation='softmax',
+                                  kernel_regularizer=None, 
+                                  name='out_{}'.format(i))(lstm1))
+        model = Model(inputs=inputs, outputs=predicts)
+        losses = {'out_{}'.format(i):'categorical_crossentropy' 
+                  for i in range(self.input_size)}
+        model.compile(loss=losses,
+                      optimizer='adam', metrics=['accuracy'])
+        self._solver = model
+    
+    def _set_intervals(self, intervals):
+        self.intervals = intervals
+
+class DiscreteLstm3LayerStateful(LstmSolverKeras):
+
+    def __init__(self, params):
+        super(DiscreteLstm3LayerStateful, self).__init__(params)
+        self._solver_construction(params)
+    
+    def _solver_construction(self, params):
+        self.batch_size = params['batch_size']
+        self.input_length = params['input_length']
+        self.input_size = params['input_size']
+        self.n_classes = params['n_classes']
+        inputs = Input(batch_shape=(self.batch_size,
+                                    self.input_length,
+                                    self.input_size))
+        lstm1 = LSTM(params['hidden_units'], return_sequences=True, stateful=True)(inputs)
+        lstm2 = LSTM(params['hidden_units'], return_sequences=True, stateful=True)(lstm1)
+        lstm3 = LSTM(params['hidden_units'], return_sequences=False, stateful=True)(lstm2)
+        
+        predicts = []
+        for i in range(self.input_size):
+            predicts.append(Dense(self.n_classes, activation='softmax',
+                                  kernel_regularizer=None, 
+                                  name='out_{}'.format(i))(lstm3))
+        model = Model(inputs=inputs, outputs=predicts)
+        losses = {'out_{}'.format(i):'categorical_crossentropy' 
+                  for i in range(self.input_size)}
+        model.compile(loss=losses,
+                      optimizer='adam', metrics=['accuracy'])
+        self._solver = model
+    
+    def _set_intervals(self, intervals):
+        self.intervals = intervals

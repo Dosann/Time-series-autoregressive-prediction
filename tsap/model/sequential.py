@@ -12,6 +12,7 @@ import pickle
 import tensorflow as tf
 
 from .base import Model
+from ..callbacks import Callback
 
 class SequentialModel(Model):
 
@@ -71,8 +72,7 @@ class SequentialModel(Model):
                 self.train_hist[key] = value
 
     def fit(self, X, Y, stages = 1, epochs=10, batch_size=64,
-            end_time=None, save_path = None,
-            callback=None):
+            end_time=None, callbacks=None):
         if end_time is not None:
             self.end_by_timestamp = True
             try:
@@ -91,23 +91,22 @@ class SequentialModel(Model):
         self._check_input(X, Y)
         self._check_parameters()
         # fit
-        if save_path is not None:
-            self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
+        callbacks.on_train_begin(model=self)
         while not self._is_end():
             self._print_epoch()
+            callbacks.on_stage_begin(model=self)
             hist = self.solver.fit(X, Y, epochs = self.epochs, batch_size = self.batch_size)
             self._append_history(hist)
             self.current_epoch += self.epochs
             self.stages += -1
-            if save_path is not None:
-                self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
-            if callback is not None:
-                callback(self)
+            callbacks.on_stage_end(model=self)
         self._print_epoch()
+        callbacks.on_train_end(model=self)
     
     def fit_generator(self, data_generator, stages=1, epochs=10, batches_per_epoch=1000, 
-                      end_time=None, validation_data=None, save_path=None,
-                      callback=None): 
+                      end_time=None, validation_data=None, callbacks=None):
+        if callbacks is None:
+            callbacks = Callback()
         if end_time is not None:
             self.end_by_timestamp = True
             try:
@@ -126,21 +125,20 @@ class SequentialModel(Model):
         self._check_solver()
         self._check_parameters()
         # fit
-        if save_path is not None:
-            self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
+        callbacks.on_train_begin(model=self)
         while not self._is_end():
             self._print_epoch()
+            callbacks.on_stage_begin(model=self)
             hist = self.solver.fit_generator(data_generator, 
                                       validation_data=validation_data, epochs = self.epochs, 
-                                      batches_per_epoch = self.batches_per_epoch)
+                                      batches_per_epoch = self.batches_per_epoch,
+                                      callbacks=callbacks)
             self._append_history(hist)
             self.current_epoch += self.epochs
             self.stages += -1
-            if save_path is not None:
-                self.save('{}.{:0>4d}'.format(save_path, self.current_epoch))
-            if callback is not None:
-                callback(self)
+            callbacks.on_stage_end(model=self)
         self._print_epoch()
+        callbacks.on_train_end(model=self)
     
     def _pickle_self(self):
         _solver = self.solver
@@ -194,16 +192,16 @@ class SequentialModel(Model):
     def load_weights(self, path): # TODO
         pass
 
-    def predict(self, X):
-        return self.predictor.do_predict(self.solver, X)
+    def predict(self, X, **kwargs):
+        return self.predictor.do_predict(self.solver, X, **kwargs)
     
-    def singlstep_predict(self, X):
-        return self.predictor.singlstep_predict(self.solver, X)
+    def singlstep_predict(self, X, **kwargs):
+        return self.predictor.singlstep_predict(self.solver, X, **kwargs)
 
-    def multistep_predict(self, X, n_steps):
-        return self.predictor.multistep_predict(self.solver, X, n_steps)
+    def multistep_predict(self, X, length, **kwargs):
+        return self.predictor.multistep_predict(self.solver, X, **kwargs)
     
-    def multiseg_multistep_predict(self, X, n_segs, n_steps):
+    def multiseg_multistep_predict(self, X, n_segs, length, **kwargs):
         # TODO
         pass
     

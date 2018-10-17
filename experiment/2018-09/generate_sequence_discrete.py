@@ -20,7 +20,7 @@ import pickle as pkl
 
 import platform
 system = platform.system()
-if system != "Windows":
+if system == "Linux":
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -37,7 +37,7 @@ def load_data(data_path):
 
 model = sequential.SequentialModel.load_model(
     "../../model/20180930.DiscreteRangeLSTM.EqualProbInterval.truncatedata/"
-    "FinData-CR-G3.1lay.50ts.32hu.0300")
+    "FinData-CR-G3.1lay.50ts.32hu.0120")
 
 params = {
     "batch_size":64,
@@ -45,7 +45,7 @@ params = {
     "input_length":50,
     "input_size":1,
     "n_classes":128,
-    "train_path":"../../data/NYSEtop80.1h.preprcd/train.truncate.npy"
+    "train_path":"../../data/NYSEtop80.1h.preprcd/valid.1.truncate.npy"
 }
 
 predictor = dap.DetermDiscreteAGPredictor(
@@ -61,16 +61,16 @@ train_feeder = data_util.SequentialDiscreteRCDF(
     intervals = None, 
     interv_dividing_method = equalwidth_interval_dividing)
 
-X, Y = train_feeder.get_multistep_test_data(length=1)
+X, Y = train_feeder.get_multistep_test_data(length=50)
 PRED_LENGTH = 100
-PRED_EPOCHS = 10
-preds = []
+PRED_EPOCHS = 30
+preds = [None]*PRED_LENGTH*PRED_EPOCHS
 for epoch in range(PRED_EPOCHS):
     _, pred = model.multistep_predict(
         X=X, n_steps=PRED_LENGTH)
-    preds += list(pred.squeeze())[-PRED_LENGTH:]
+    preds[epoch*PRED_LENGTH:(epoch+1)*PRED_LENGTH] = list(pred.squeeze())[-PRED_LENGTH:]
     print("Current progress: {}/{}".format(epoch+1,PRED_EPOCHS))
-    X = pred[np.newaxis,:-params["input_length"],:]
+    X = pred[np.newaxis,-params["input_length"]:,:]
 
 np.save("20180930.DiscreteRangeLSTM.EqualProbInterval."
     "truncatedata_{}".format(PRED_LENGTH*PRED_EPOCHS), np.array(preds))

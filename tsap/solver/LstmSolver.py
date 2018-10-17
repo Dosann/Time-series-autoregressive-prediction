@@ -11,6 +11,7 @@ from types import GeneratorType
 import numpy as np
 import pandas as pd
 import pickle
+import keras
 from keras import models
 from sklearn.preprocessing import MinMaxScaler
 
@@ -76,27 +77,34 @@ class LstmSolverKeras(Solver):
         #                     .format(X_sample.shape[0], Y_sample.shape[0]))
         pass
 
-    def fit(self, X, Y, epochs, batch_size):
+    def fit(self, X, Y, epochs, batch_size, callbacks=None):
         self._check_input(X, Y)
         return self._solver.fit(X, Y, epochs = epochs, 
                          batch_size = batch_size, 
-                         validation_split = 0.01)
+                         validation_split = 0.01,
+                         callbacks=(callbacks is None) and None or [callbacks])
 
     def fit_generator(self, data_generator, epochs, batches_per_epoch, 
-                      validation_data=None):
+                      validation_data=None, callbacks=None):
         self._check_input_generator(data_generator)
         if validation_data is not None:
             return self._solver.fit_generator(data_generator, epochs = epochs, 
                                        steps_per_epoch = batches_per_epoch,
                                        validation_data = validation_data,
-                                       validation_steps = 5)
+                                       validation_steps = 5,
+                                       callbacks=(callbacks is None) and None or [callbacks])
         else:
             return self._solver.fit_generator(data_generator, epochs = epochs,
-                                       steps_per_epoch = batches_per_epoch)
+                                       steps_per_epoch = batches_per_epoch,
+                                       callbacks=(callbacks is None) and None or [callbacks])
     
-    def predict(self, X):
+    def predict(self, X, stateful=True):
         assert(isinstance(X, np.ndarray))
         self._check_input_X(X)
+        if stateful:
+            for layer in self._solver.layers:
+                if isinstance(layer, keras.layers.recurrent.LSTM):
+                    layer.stateful = True
         return self._solver.predict(X)
     
     def _save_others(self, path):

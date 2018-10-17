@@ -116,10 +116,16 @@ def continue2discrete(data, intervals):
         dsc_data[np.logical_and(data>=start, data<end)] = i
     return dsc_data.astype(np.int32)
 
-def discrete2continue(data, intervals):
+def discrete2continue(data, intervals, random=False):
     n_intervals = len(intervals)
-    MAP = {i:(intervals[i]+intervals[i+1])/2 for i in range(n_intervals-1)}
-    ctn_data = np.vectorize(MAP.get)(data)
+    if random:
+        MAP = {i:(intervals[i], intervals[i+1]) for i in range(n_intervals-1)}
+        ctn_interval = np.array(np.vectorize(MAP.get)(data))
+        rand = np.random.uniform(0, 1e5, size=(ctn_interval.shape[1]))
+        ctn_data = rand % (ctn_interval[1]-ctn_interval[0]) + (ctn_interval[0])
+    else:
+        MAP = {i:(intervals[i]+intervals[i+1])/2 for i in range(n_intervals-1)}
+        ctn_data = np.vectorize(MAP.get)(data)
     return ctn_data
 
 def label2onehot(data, n_labels):
@@ -232,7 +238,7 @@ class SequentialRandomChannelDataFeeder:
                 self.Y[self.out_length:self.out_length+length, :self.out_size])
 
 
-class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
+class SequentialDiscreteRCDF:
 
     def __init__(self, data, batch_size, batches_per_epoch, 
                  out_length, out_size, n_classes,
@@ -337,6 +343,137 @@ class SequentialDiscreteRCDF(SequentialRandomChannelDataFeeder):
         return (np.array([self.X[i:i+self.out_length, :self.out_size] 
                     for i in range(length)]),
                 self.Y[:self.out_size, self.out_length:self.out_length+length, :]
+                    .transpose(1,0,2))
+
+class SeqDiscrtzdRandomChanlStatefulDF:
+    # sequential discretized random channel data feeder for stateful model
+
+    def __init__(self, data, batch_size, batches_per_epoch, 
+                 out_length, out_size, n_classes,
+                 intervals=None,
+                 interv_dividing_method = equalprob_interval_dividing):
+        # data should be of shape (n_timestep, n_chan)
+        print("out_size is {}".format(out_size))
+        self.data = data
+        self.batch_size = batch_size
+        self.batches_per_epoch = batches_per_epoch
+        self.out_length = out_length
+        self.out_size = out_size
+        self.n_classes = n_classes
+        self._check_data()
+        self._reset()
+        self._set_intervals(intervals, interv_dividing_method)
+        self._data_preparation()
+    
+    def _check_data(self):
+        if not isinstance(self.data, np.ndarray):
+            raise ValueError("Input data should be of 'np.ndarray' "
+                             "but is '{}'".format(type(self.data)))
+        if self.data.ndim == 1:
+            self.data = self.data.reshape([-1,1])
+        elif self.data.ndim != 2:
+            raise ValueError("Input data shape should be 1 or 2, "
+                             "but is {}".format(self.data.shape))
+
+        self.n_timestep, self.n_chan = self.data.shape
+        if self.n_chan < self.out_size:
+            raise ValueError("Data size (# of channel) is smaller "
+                             "than predefined 'out_size'")
+        self._from = 0
+        self._to   = self.n_timestep - self.out_length - 1
+
+    def _reset(self):
+        self.batch = 0
+        self.curr_timestep = 0
+        self.channel_ids = [np.random.permutation(self.n_chan)[:self.out_size] 
+                                for x in range(self.batch_size)] # list of np.array of shape (output_size,)
+
+    def _set_intervals(self, intervals, interv_dividing_method):
+        if intervals is None:
+            self.intervals = interv_dividing_method(
+                self.data, self.n_classes)
+        else:
+            self.intervals = intervals
+    
+    def get_intervals(self):
+        return self.intervals
+        
+    def _data_preparation(self):
+        # self.X : (n_timestep, n_chan)
+        self.X = self.data
+        # self.Y : (n_timestep, n_chan)
+        self.Y = continue2discrete(self.data, self.intervals)
+        self._onehotecd_preparation()
+        # self.Y : (n_chan, n_timestep, n_classes)
+        self.Y = np.array([self.ohe.transform(self.Y[:,i].reshape(-1,1)).todense() 
+                    for i in range(self.Y.shape[1])])
+    
+    def _onehotecd_preparation(self):
+        self.ohe = preprocessing.OneHotEncoder(n_values=self.n_classes)
+        self.ohe.fit(np.arange(self.n_classes, dtype=np.int32)
+                        .reshape(-1,1))
+    
+    @property
+    def reset_cycle_length(self):
+        n_cycle = int((self.data.shape[0]-1) / self.out_length)
+        return n_cycle
+
+    def __next__(self):
+        if self.curr_timestep + self.out_length >= self.data.shape[0]:
+            self._reset()
+        _from = self.curr_timestep
+        _to   = _from + self.out_length
+        X = [None] * self.batch_size
+        Y = [None] * self.batch_size
+        for i in range(self.batch_size):
+            X[i] = self.X[_from:_to, self.channel_ids[i]]
+            Y[i] = self.Y[self.channel_ids[i], _to, :]
+        # Y : list of (out_size, n_classes)
+        X = np.array(X) # (batch_size, out_length, out_size)
+        Y = np.array(Y).transpose(1,0,2) # (out_size, batch_size, n_classes)
+        Y = [y for y in Y] # list of (batch_size, n_classes)
+        self.batch += 1
+        self.curr_timestep += self.out_length
+        return X, Y
+    
+    def get_multistep_test_data(self, length, lead_length=100, random=False):
+        # input:
+        #   lead_length: The length of the lead sequence not used for 
+        #                evaluation (for stateful model).
+        #   length: The length of the lead sequence used for evaluation.
+        # output:
+        #   out_length is set to 1 no matter what self.out_length is.
+        #   X: lead+1 samples (lead_length+1, 1, out_size)
+        #   Y: 3-d array (length, out_size, n_classes)
+        #      starting from 'lead_length+1'
+        if lead_length + length > self.n_timestep - self.out_length:
+            raise ValueError("Queried total length exceeded limit.\n"
+                             "Maximum total length: {}"
+                             .format(self.n_timestep-self.out_length))
+        X = [self.X[i:i+1, :self.out_size] 
+                for i in range(lead_length+1)]
+        X = np.array(X)
+        Y = self.Y[:self.out_size, lead_length+1:lead_length+1+length, :] \
+                    .transpose(1,0,2)
+        return X, Y
+
+    def get_singlstep_test_data(self, length, lead_length=100, random=False):
+        # input:
+        #   lead_length: The length of the lead sequence not used for 
+        #                evaluation (for stateful model).
+        #   length: The length of the lead sequence used for evaluation.
+        # output:
+        #   out_length is set to 1 no matter what self.out_length is.
+        #   X: 'length' samples (lead_length+length, 1, out_size)
+        #   Y: 3-d array (length, out_size, n_classes)
+        #      starting from 'lead_length+1'
+        if length > self.n_timestep - self.out_length:
+            raise ValueError("Queried length exceeded limit.\n"
+                             "Maximum length: {}"
+                             .format(self.n_timestep-self.out_length))
+        return (np.array([self.X[i:i+1, :self.out_size] 
+                    for i in range(lead_length+length)]),
+                self.Y[:self.out_size, lead_length+1:lead_length+1+length, :]
                     .transpose(1,0,2))
 
 
