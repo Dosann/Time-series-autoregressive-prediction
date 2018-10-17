@@ -98,13 +98,9 @@ class LstmSolverKeras(Solver):
                                        steps_per_epoch = batches_per_epoch,
                                        callbacks=(callbacks is None) and None or [callbacks])
     
-    def predict(self, X, stateful=True):
+    def predict(self, X):
         assert(isinstance(X, np.ndarray))
         self._check_input_X(X)
-        if stateful:
-            for layer in self._solver.layers:
-                if isinstance(layer, keras.layers.recurrent.LSTM):
-                    layer.stateful = True
         return self._solver.predict(X)
     
     def _save_others(self, path):
