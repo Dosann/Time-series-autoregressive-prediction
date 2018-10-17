@@ -149,6 +149,8 @@ class DetermDiscreteAGPredictorStateful(Predictor):
         # return :
         #   prob : (input_size, n_classes)
         #   pred : (input_size)
+        print("determ.before solver.predict(X). solver's input_shape: ", solver._solver.input_shape)
+        print("shape of X: ", X.shape)
         prob = solver.predict(X[np.newaxis,...]) # [(1, n_classes)] or (1, n_classes)
         if type(prob) is list:
             prob = np.concatenate(prob, axis=0) # (input_size, n_classes)
