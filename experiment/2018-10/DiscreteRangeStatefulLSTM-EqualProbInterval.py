@@ -24,6 +24,7 @@ from scipy.stats import mode
 import argparse
 import matplotlib
 import pickle as pkl
+import copy
 
 import platform
 system = platform.system()
@@ -546,11 +547,11 @@ if __name__ == '__main__':
     
     if not params['test']: # train phase
         solver_train = eval(params['Solver'])(params)
-        params_test = params
+        params_test = copy.copy(params)
         params_test['batch_size'] = 1
         params_test['input_length'] = 1
         solver_test = eval(params['Solver'])(params_test)
-        params_test_mcmc = params
+        params_test_mcmc = copy.copy(params)
         params_test_mcmc['batch_size'] = params['n_samples']
         params_test_mcmc['input_length'] = 1
         solver_test_mcmc = eval(params['Solver'])(params_test_mcmc)
