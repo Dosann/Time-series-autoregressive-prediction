@@ -351,6 +351,7 @@ class DRSCallback(Callback):
             return pred_class, pred_value, prob
 
         if params['montecarlo']:
+            solver_test_mcmc._solver.set_weights(solver_train._solver.get_weights())
             model._set_solver(solver_test_mcmc)
             # multistep : MCMC predictor
             model._set_predictor(predictor_m)

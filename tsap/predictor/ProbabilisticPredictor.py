@@ -116,10 +116,10 @@ class MCMCPredictorStateful(Predictor):
         # return : 
         #   prob : (n_samples, input_size, n_classes)
         #   pred : (n_samples, input_size)
-        print("before solver.predict(X). solver's input_shape: ", solver._solver.input_shape)
-        print("shape of X: ", X.shape)
+        #print("before solver.predict(X). solver's input_shape: ", solver._solver.input_shape)
+        #print("shape of X: ", X.shape)
         prob = solver.predict(X)
-        print("after solver.predict(X)")
+        #print("after solver.predict(X)")
         if type(prob) is list:
             prob = [p[:,np.newaxis,...] for p in prob]
             prob = np.concatenate(prob, axis=1)
