@@ -199,7 +199,7 @@ class MCMCPredictorStateful(Predictor):
                                                 self.intervals, random=True)
                 print("pred's shape after continualize: ", pred.shape)
                                     
-                pred_history[:,i+1,:] = 
+                pred_history[:,i+1,:] = pred
         return prob_history, pred_history
     
     def _save_others(self, path):
