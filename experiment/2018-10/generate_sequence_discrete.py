@@ -11,6 +11,7 @@ parser.add_argument('--save_path', type=str)
 parser.add_argument('--pred_length', type=int)
 parser.add_argument('--lead_length', type=int)
 params = vars(parser.parse_args())
+os.environ['CUDA_VISIBLE_DEVICES'] = params['CUDA_VISIBLE_DEVICES']
 
 import tsap
 from tsap.solver.LstmSolver import LstmSolverKeras
