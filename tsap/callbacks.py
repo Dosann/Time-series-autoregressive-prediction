@@ -66,8 +66,8 @@ class Callback(object):
     def on_batch_end(self, batch, logs=None):
         pass
 
-    def on_train_begin(self, model, logs=None):
+    def on_train_begin(self, logs=None):
         pass
 
-    def on_train_end(self, model, logs=None):
+    def on_train_end(self, logs=None):
         pass
